@@ -4,69 +4,69 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Robot Arm Control</title>
-    <style>
-        :root{
-            --accent:#d9534f; /* warm red */
-            --muted:#6b6b6b;
-            --card-bg:#ffffff;
-            --page-bg:#f7f8fb;
-            --control-bg:#f1f3f5;
-            --pill:#eef1f4;
-            --shadow: 0 6px 18px rgba(20,20,40,0.08);
-            --radius:14px;
-            --radius-sm:8px;
-            --gap:18px;
-        }
-
-        html,body{height:100%;}
-        body{
-            margin:0;
-            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-            background:var(--page-bg);
-            color:#222;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            padding:40px 20px;
-        }
-
-        .panel{
-            width:380px;
-            background:var(--card-bg);
-            border-radius:var(--radius);
-            box-shadow:var(--shadow);
-            padding:28px;
-        }
-
-        h1{
-            margin:0 0 18px 0;
-            font-size:22px;
-            text-align:center;
-        }
-
-        .art{
-            background:linear-gradient(180deg,#fff,#fbfbfd);
-            border-radius:12px;
-            padding:18px;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            box-shadow:0 6px 18px rgba(20,20,40,0.04);
-        }
-
-        .art img{max-width:100%; height:auto; display:block;}
-
-        .status{
-            display:flex;
-            align-items:center;
-            gap:10px;
-            margin:16px 0 6px 0;
-            color:var(--accent);
-            font-weight:600;
-        }
-
-        .status .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
     <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="panel" role="main">
+        <h1>Robot Arm Control</h1>
+
+        <div class="art" aria-hidden="true">
+            <img src="robot.png" alt="Robot arm sketch" onerror="this.style.opacity=0.12; this.style.filter='grayscale(1)'; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 400 250\'><rect width=\'100%\' height=\'100%\' fill=\'%23fff\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23c7c7c7\' font-size=\'16\'>Robot image</text></svg>'" />
+        </div>
+
+        <div class="status" aria-live="polite">
+            <span class="dot" aria-hidden="true"></span>
+            <span>Arm offline</span>
+        </div>
+
+        <div class="desc">If the robot arm is online adjust the sliders to control it. Changes are automatically sent to the robot arm.</div>
+
+        <div class="control">
+            <div class="control-row">
+                <div class="label">Base Spin</div>
+                <div class="slider-wrap">
+                    <input id="baseSpin" type="range" min="0" max="180" value="90">
+                </div>
+                <div class="value-box" id="valBaseSpin">90</div>
+            </div>
+
+            <div class="control-row">
+                <div class="label">Base Arm</div>
+                <div class="slider-wrap">
+                    <input id="baseArm" type="range" min="0" max="180" value="90">
+                </div>
+                <div class="value-box" id="valBaseArm">90</div>
+            </div>
+
+            <div class="control-row">
+                <div class="label">Mid Arm</div>
+                <div class="slider-wrap">
+                    <input id="midArm" type="range" min="0" max="180" value="90">
+                </div>
+                <div class="value-box" id="valMidArm">90</div>
+            </div>
+
+            <div class="control-row">
+                <div class="label">Gripper Arm</div>
+                <div class="slider-wrap">
+                    <input id="gripper" type="range" min="0" max="180" value="90">
+                </div>
+                <div class="value-box" id="valGripper">90</div>
+            </div>
+
+            <div style="margin-top:8px">
+                <div class="label" style="margin-bottom:8px;color:var(--accent);font-weight:700">Finger</div>
+                <div class="finger-actions">
+                    <button class="btn" id="openBtn">Open</button>
+                    <button class="btn" id="closeBtn">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hook up range inputs to value boxes
+        const map = [
             {id:'baseSpin', val:'valBaseSpin'},
             {id:'baseArm', val:'valBaseArm'},
             {id:'midArm', val:'valMidArm'},
