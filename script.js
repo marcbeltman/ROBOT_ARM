@@ -12,9 +12,12 @@ class RobotArmClient {
     this.queue = [];
     this.sliderValues = {};
     this.heartbeatTimeout = null;
+    this._lastCamUrl = null;
+    this._messageCount = 0;  // Diagnostics: count received messages
 
     // DOM elements (cache als je ze vaak gebruikt)
-    this.camImg = document.getElementById('camera-feed');
+    // find the img element we'll use to show camera frames (fallback image element)
+    this.camImg = document.getElementById('cameraFallback') || document.getElementById('camera-feed') || null;
     this.statusEl = document.getElementById('connection-status') || null;
 
     this.connect();
@@ -32,7 +35,9 @@ class RobotArmClient {
     }
 
     this.ws.onopen = () => {
-      console.info('WebSocket verbonden');
+      console.info('[RobotArmClient] WebSocket verbonden');
+      console.info('[RobotArmClient] URL:', this.url);
+      console.info('[RobotArmClient] binaryType:', this.ws.binaryType);
       this.isConnected = true;
       this.backoff = 1000;
       this.flushQueue();
@@ -41,21 +46,51 @@ class RobotArmClient {
     };
 
     this.ws.onmessage = (event) => {
-      // Log raw incoming message for debugging
-      try {
-        console.log('[RobotArmClient] onmessage received:', event);
-      } catch (e) {
-        // ignore console errors
+      this._messageCount++;
+      console.log(`\n========== MESSAGE #${this._messageCount} ==========`);
+      console.log('[RobotArmClient] Raw event:', event);
+      console.log('[RobotArmClient] event.data:', event.data);
+      
+      // Detailed type diagnostics
+      console.log('[RobotArmClient] Type Analysis:');
+      console.log('  - typeof event.data:', typeof event.data);
+      console.log('  - isBlob:', event.data instanceof Blob);
+      console.log('  - isArrayBuffer:', event.data instanceof ArrayBuffer);
+      console.log('  - isView:', ArrayBuffer.isView(event.data));
+      console.log('  - isString:', typeof event.data === 'string');
+      console.log('  - size/byteLength/length:', event.data.size || event.data.byteLength || event.data.length || 'N/A');
+      
+      // If it's a string, show it
+      if (typeof event.data === 'string') {
+        console.log('[RobotArmClient] String content:', event.data.substring(0, 500));
       }
+      
+      // If it's a Blob, show size
+      if (event.data instanceof Blob) {
+        console.log('[RobotArmClient] Blob size:', event.data.size, 'bytes, type:', event.data.type);
+      }
+      
+      // If it's binary, try to show first few bytes
+      if (event.data instanceof ArrayBuffer || ArrayBuffer.isView(event.data)) {
+        const bytes = new Uint8Array(event.data instanceof ArrayBuffer ? event.data : event.data.buffer);
+        console.log('[RobotArmClient] Binary data first 20 bytes:', Array.from(bytes.slice(0, 20)));
+      }
+      console.log('==========================================\n');
+      
       // 1. Eerst checken: is het een cameraframe? (Blob = binary)
       // Handle Blob frames (common when ws.binaryType='blob')
       if (event.data instanceof Blob) {
         console.log('[RobotArmClient] Received Blob (camera frame), size=', event.data.size);
         const url = URL.createObjectURL(event.data);
         if (this.camImg) {
+          try { if (this._lastCamUrl) URL.revokeObjectURL(this._lastCamUrl); } catch(e){}
+          this._lastCamUrl = url;
           this.camImg.src = url;
-          // Cleanup na tonen (belangrijk voor geheugen)
-          setTimeout(() => URL.revokeObjectURL(url), 100);
+          this.camImg.style.display = 'block';
+          this.camImg.style.background = '#ffffff';
+          this.camImg.style.border = '2px solid #ddd';
+          this.camImg.style.borderRadius = '8px';
+          const placeholder = document.getElementById('cameraPlaceholder'); if (placeholder) placeholder.style.display = 'none';
         }
         return;
       }
@@ -66,8 +101,14 @@ class RobotArmClient {
         const blob = new Blob([event.data], { type: 'image/jpeg' });
         const url = URL.createObjectURL(blob);
         if (this.camImg) {
+          try { if (this._lastCamUrl) URL.revokeObjectURL(this._lastCamUrl); } catch(e){}
+          this._lastCamUrl = url;
           this.camImg.src = url;
-          setTimeout(() => URL.revokeObjectURL(url), 100);
+          this.camImg.style.display = 'block';
+          this.camImg.style.background = '#ffffff';
+          this.camImg.style.border = '2px solid #ddd';
+          this.camImg.style.borderRadius = '8px';
+          const placeholder = document.getElementById('cameraPlaceholder'); if (placeholder) placeholder.style.display = 'none';
         }
         return;
       }
@@ -79,8 +120,14 @@ class RobotArmClient {
         const blob = new Blob([event.data.buffer || event.data], { type: 'image/jpeg' });
         const url = URL.createObjectURL(blob);
         if (this.camImg) {
+          try { if (this._lastCamUrl) URL.revokeObjectURL(this._lastCamUrl); } catch(e){}
+          this._lastCamUrl = url;
           this.camImg.src = url;
-          setTimeout(() => URL.revokeObjectURL(url), 100);
+          this.camImg.style.display = 'block';
+          this.camImg.style.background = '#ffffff';
+          this.camImg.style.border = '2px solid #ddd';
+          this.camImg.style.borderRadius = '8px';
+          const placeholder = document.getElementById('cameraPlaceholder'); if (placeholder) placeholder.style.display = 'none';
         }
         return;
       }
@@ -114,6 +161,31 @@ class RobotArmClient {
   }
 
   handleMessage(msg) {
+    // If Node-RED sends an object with payload as an array of byte values,
+    // convert it to a Blob and display as an image frame.
+    if (msg && msg.payload && Array.isArray(msg.payload)) {
+      try {
+        console.log('[RobotArmClient] Detected Node-RED payload array, length=', msg.payload.length);
+        const arr = new Uint8Array(msg.payload);
+        const blob = new Blob([arr], { type: 'image/jpeg' });
+        if (this.camImg) {
+          const url = URL.createObjectURL(blob);
+          try { if (this._lastCamUrl) URL.revokeObjectURL(this._lastCamUrl); } catch(e){}
+          this._lastCamUrl = url;
+          this.camImg.src = url;
+          this.camImg.style.display = 'block';
+          this.camImg.style.background = '#ffffff';
+          this.camImg.style.border = '2px solid #ddd';
+          this.camImg.style.borderRadius = '8px';
+          const placeholder = document.getElementById('cameraPlaceholder'); if (placeholder) placeholder.style.display = 'none';
+          console.log('[RobotArmClient] Displaying decoded camera frame from payload array (bytes=', arr.length, ')');
+        }
+        return;
+      } catch (e) {
+        console.warn('Failed to decode payload array to image blob', e);
+      }
+    }
+
     if (msg.type === 'update' && msg.servo) {
       this.updateSlider(msg.servo, msg.angle);
     }
