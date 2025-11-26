@@ -2,7 +2,9 @@
 <html lang="nl">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <meta name="description" content="Robot Arm Control Interface - Live camera feed and servo control">
+    <meta name="theme-color" content="#ffffff">
     <title>Robot Arm Control</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -19,12 +21,8 @@
             <div class="art" aria-live="polite">
                 <!-- Placeholder text shown while no camera stream is active -->
                 <div id="cameraPlaceholder" class="camera-placeholder">Camera offline</div>
-
-                <!-- Video element for live camera feed. Hidden until activated -->
-                <video id="camera" playsinline autoplay muted style="width:100%;height:auto;border-radius:8px;background:#eee;display:none"></video>
-
-                <!-- Fallback: static robot image or MJPEG stream (shown when set) -->
-                <img id="cameraFallback" src="robot.png" alt="Robot arm sketch" style="max-width:100%;height:auto;display:none" />
+                <canvas id="videoCanvas" class="media-frame media-canvas hidden" aria-hidden="true"></canvas>
+                <img id="videoFrame" class="media-frame hidden" alt="video frame" aria-hidden="true">
             </div>
 
             <!-- Camera pan/tilt controls (appear directly under the image area) -->
@@ -45,6 +43,8 @@
                     <div class="value-box" id="valCameraTilt">0</div>
                 </div>
             </div>
+
+                <!-- Inject test frame removed -->
         </section>
 
         <!-- Robot Arm Section -->
@@ -119,8 +119,10 @@
         </div>
     </div>
 
+    <script src="script.js"></script>
     <script>
-        // Hook up range inputs to value boxes
+        // Hook up range inputs to value boxes and WebSocket
+        window.client = new RobotArmClient();
         const map = [
             {id:'baseSpin', val:'valBaseSpin'},
             {id:'baseArm', val:'valBaseArm'},
@@ -133,14 +135,17 @@
         map.forEach(pair => {
             const el = document.getElementById(pair.id);
             const vb = document.getElementById(pair.val);
-            function update(){ vb.textContent = el.value; sendUpdate(pair.id, el.value); }
+            function update(){
+                vb.textContent = el.value;
+                client.moveServo(pair.id, el.value);
+            }
             el.addEventListener('input', update);
             el.addEventListener('change', update);
         });
 
         // Finger buttons
-        document.getElementById('openBtn').addEventListener('click', ()=>{ sendUpdate('finger','open'); flash('Open'); });
-        document.getElementById('closeBtn').addEventListener('click', ()=>{ sendUpdate('finger','close'); flash('Close'); });
+        document.getElementById('openBtn').addEventListener('click', ()=>{ client.moveServo('finger','open'); flash('Open'); });
+        document.getElementById('closeBtn').addEventListener('click', ()=>{ client.moveServo('finger','close'); flash('Close'); });
 
         function flash(text){
             const orig = document.querySelector('.status span:nth-child(2)').textContent;
@@ -148,15 +153,8 @@
             setTimeout(()=>document.querySelector('.status span:nth-child(2)').textContent = orig,800);
         }
 
-        // Placeholder send function - replace with websocket/fetch to your backend
-        function sendUpdate(name, value){
-            // Example: console.log or send to server
-            console.log('send', name, value);
-        }
-
-        // --- Camera helpers -------------------------------------------------
-        // Start the local webcam (will request permission). Shows the <video> element.
-        async function startLocalCamera(constraints = { video: { width: 640 } }){
+        // Camera helpers (optioneel, niet via WebSocket)
+        window.startLocalCamera = async function(constraints = { video: { width: 640 } }){
             const video = document.getElementById('camera');
             const fallback = document.getElementById('cameraFallback');
             const placeholder = document.getElementById('cameraPlaceholder');
@@ -165,7 +163,6 @@
                 video.srcObject = stream;
                 video.style.display = 'block';
                 fallback.style.display = 'none';
-                // hide placeholder text
                 if(placeholder) placeholder.style.display = 'none';
             }catch(err){
                 console.warn('Camera start error', err);
@@ -175,20 +172,17 @@
             }
         }
 
-        // Set a MJPEG/http image stream as the source (useful for IP cams)
-        function setMJPEGStream(url){
+        window.setMJPEGStream = function(url){
             const video = document.getElementById('camera');
             const fallback = document.getElementById('cameraFallback');
             const placeholder = document.getElementById('cameraPlaceholder');
-            // Use the image fallback to show a continuous MJPEG stream
             fallback.src = url;
             fallback.style.display = 'block';
             video.style.display = 'none';
             if(placeholder) placeholder.style.display = 'none';
         }
 
-        // Stop local camera stream (if any)
-        function stopCamera(){
+        window.stopCamera = function(){
             const video = document.getElementById('camera');
             const placeholder = document.getElementById('cameraPlaceholder');
             if(video.srcObject){
@@ -200,6 +194,8 @@
             document.getElementById('cameraFallback').style.display = 'block';
             if(placeholder){ placeholder.textContent = 'Camera offline'; placeholder.style.display = 'flex'; }
         }
+
+        // Inject test frame functionality removed
     </script>
 </body>
 </html>
