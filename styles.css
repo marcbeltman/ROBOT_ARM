@@ -31,6 +31,24 @@ body{
     padding:28px;
 }
 
+/* Sections */
+.section{
+    margin-bottom:18px;
+    padding:12px 8px 6px 8px;
+    border-radius:10px;
+}
+
+.section-header h2{
+    margin:0 0 8px 0;
+    font-size:15px;
+    color:#1f2937;
+    text-align:left;
+    font-weight:700;
+}
+
+.camera-section .art{ padding:14px }
+.arm-section .control{ margin-top:6px }
+
 h1{
     margin:0 0 18px 0;
     font-size:22px;

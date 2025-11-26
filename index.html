@@ -10,21 +10,53 @@
     <div class="panel" role="main">
         <h1>Robot Arm Control</h1>
 
-        <div class="art" aria-live="polite">
-            <!-- Placeholder text shown while no camera stream is active -->
-            <div id="cameraPlaceholder" class="camera-placeholder">Camera offline</div>
+        <!-- Camera Section -->
+        <section class="section camera-section" aria-labelledby="cameraHeading">
+            <div class="section-header">
+                <h2 id="cameraHeading">Camera</h2>
+            </div>
 
-            <!-- Video element for live camera feed. Hidden until activated -->
-            <video id="camera" playsinline autoplay muted style="width:100%;height:auto;border-radius:8px;background:#eee;display:none"></video>
+            <div class="art" aria-live="polite">
+                <!-- Placeholder text shown while no camera stream is active -->
+                <div id="cameraPlaceholder" class="camera-placeholder">Camera offline</div>
 
-            <!-- Fallback: static robot image or MJPEG stream (shown when set) -->
-            <img id="cameraFallback" src="robot.png" alt="Robot arm sketch" style="max-width:100%;height:auto;display:none" />
-        </div>
+                <!-- Video element for live camera feed. Hidden until activated -->
+                <video id="camera" playsinline autoplay muted style="width:100%;height:auto;border-radius:8px;background:#eee;display:none"></video>
 
-        <div class="status" aria-live="polite">
-            <span class="dot" aria-hidden="true"></span>
-            <span>Arm offline</span>
-        </div>
+                <!-- Fallback: static robot image or MJPEG stream (shown when set) -->
+                <img id="cameraFallback" src="robot.png" alt="Robot arm sketch" style="max-width:100%;height:auto;display:none" />
+            </div>
+
+            <!-- Camera pan/tilt controls (appear directly under the image area) -->
+            <div class="control" id="camera-controls" style="margin-top:12px; margin-bottom:8px">
+                <div class="control-row">
+                    <div class="label">Camera Pan</div>
+                    <div class="slider-wrap">
+                        <input id="cameraPan" type="range" min="0" max="360" value="180">
+                    </div>
+                    <div class="value-box" id="valCameraPan">180</div>
+                </div>
+
+                <div class="control-row">
+                    <div class="label">Camera Tilt</div>
+                    <div class="slider-wrap">
+                        <input id="cameraTilt" type="range" min="-90" max="90" value="0">
+                    </div>
+                    <div class="value-box" id="valCameraTilt">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Robot Arm Section -->
+        <section class="section arm-section" aria-labelledby="armHeading">
+            <div class="section-header">
+                <h2 id="armHeading">Robot Arm</h2>
+            </div>
+
+            <div class="status" aria-live="polite">
+                <span class="dot" aria-hidden="true"></span>
+                <span>Arm offline</span>
+            </div>
 
         <div class="desc">If the robot arm is online adjust the sliders to control it. Changes are automatically sent to the robot arm.</div>
 
@@ -61,6 +93,22 @@
                 <div class="value-box" id="valGripper">90</div>
             </div>
 
+            <div class="control-row">
+                <div class="label">Camera Pan</div>
+                <div class="slider-wrap">
+                    <input id="cameraPan" type="range" min="0" max="360" value="180">
+                </div>
+                <div class="value-box" id="valCameraPan">180</div>
+            </div>
+
+            <div class="control-row">
+                <div class="label">Camera Tilt</div>
+                <div class="slider-wrap">
+                    <input id="cameraTilt" type="range" min="-90" max="90" value="0">
+                </div>
+                <div class="value-box" id="valCameraTilt">0</div>
+            </div>
+
             <div style="margin-top:8px">
                 <div class="label" style="margin-bottom:8px;color:var(--accent);font-weight:700">Finger</div>
                 <div class="finger-actions">
@@ -77,7 +125,9 @@
             {id:'baseSpin', val:'valBaseSpin'},
             {id:'baseArm', val:'valBaseArm'},
             {id:'midArm', val:'valMidArm'},
-            {id:'gripper', val:'valGripper'}
+            {id:'gripper', val:'valGripper'},
+            {id:'cameraPan', val:'valCameraPan'},
+            {id:'cameraTilt', val:'valCameraTilt'}
         ];
 
         map.forEach(pair => {
