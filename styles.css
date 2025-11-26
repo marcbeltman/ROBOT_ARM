@@ -49,6 +49,20 @@ h1{
 
 .art img{max-width:100%; height:auto; display:block;}
 
+/* Placeholder text shown in the image area when no camera is active */
+.camera-placeholder{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    font-weight:600;
+    min-height:180px;
+    width:100%;
+    background:transparent;
+    border-radius:8px;
+    font-size:15px;
+}
+
 .status{
     display:flex;
     align-items:center;

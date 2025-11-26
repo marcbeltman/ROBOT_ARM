@@ -10,8 +10,15 @@
     <div class="panel" role="main">
         <h1>Robot Arm Control</h1>
 
-        <div class="art" aria-hidden="true">
-            <img src="robot.png" alt="Robot arm sketch" onerror="this.style.opacity=0.12; this.style.filter='grayscale(1)'; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 400 250\'><rect width=\'100%\' height=\'100%\' fill=\'%23fff\'/><text x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' fill=\'%23c7c7c7\' font-size=\'16\'>Robot image</text></svg>'" />
+        <div class="art" aria-live="polite">
+            <!-- Placeholder text shown while no camera stream is active -->
+            <div id="cameraPlaceholder" class="camera-placeholder">Camera offline</div>
+
+            <!-- Video element for live camera feed. Hidden until activated -->
+            <video id="camera" playsinline autoplay muted style="width:100%;height:auto;border-radius:8px;background:#eee;display:none"></video>
+
+            <!-- Fallback: static robot image or MJPEG stream (shown when set) -->
+            <img id="cameraFallback" src="robot.png" alt="Robot arm sketch" style="max-width:100%;height:auto;display:none" />
         </div>
 
         <div class="status" aria-live="polite">
@@ -95,6 +102,53 @@
         function sendUpdate(name, value){
             // Example: console.log or send to server
             console.log('send', name, value);
+        }
+
+        // --- Camera helpers -------------------------------------------------
+        // Start the local webcam (will request permission). Shows the <video> element.
+        async function startLocalCamera(constraints = { video: { width: 640 } }){
+            const video = document.getElementById('camera');
+            const fallback = document.getElementById('cameraFallback');
+            const placeholder = document.getElementById('cameraPlaceholder');
+            try{
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                video.style.display = 'block';
+                fallback.style.display = 'none';
+                // hide placeholder text
+                if(placeholder) placeholder.style.display = 'none';
+            }catch(err){
+                console.warn('Camera start error', err);
+                if(placeholder){ placeholder.textContent = 'Camera error'; placeholder.style.display = 'flex'; }
+                video.style.display = 'none';
+                fallback.style.display = 'block';
+            }
+        }
+
+        // Set a MJPEG/http image stream as the source (useful for IP cams)
+        function setMJPEGStream(url){
+            const video = document.getElementById('camera');
+            const fallback = document.getElementById('cameraFallback');
+            const placeholder = document.getElementById('cameraPlaceholder');
+            // Use the image fallback to show a continuous MJPEG stream
+            fallback.src = url;
+            fallback.style.display = 'block';
+            video.style.display = 'none';
+            if(placeholder) placeholder.style.display = 'none';
+        }
+
+        // Stop local camera stream (if any)
+        function stopCamera(){
+            const video = document.getElementById('camera');
+            const placeholder = document.getElementById('cameraPlaceholder');
+            if(video.srcObject){
+                const tracks = video.srcObject.getTracks();
+                tracks.forEach(t=>t.stop());
+                video.srcObject = null;
+            }
+            video.style.display = 'none';
+            document.getElementById('cameraFallback').style.display = 'block';
+            if(placeholder){ placeholder.textContent = 'Camera offline'; placeholder.style.display = 'flex'; }
         }
     </script>
 </body>
