@@ -1,4 +1,4 @@
-/**
+/*
  * WebSocket connection manager with automatic reconnect and event broadcasting
  * Exports: connectWebSocket(url), sendCommand(obj), addEventListener(event, callback)
  */

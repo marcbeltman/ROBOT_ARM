@@ -120,11 +120,15 @@
     </div>
 
     <script type="module">
-        import { connectWebSocket } from "./js/websocket.js";
-        import { initVideoHandler } from "./js/video.js";
+        import { connectWebSocket } from "./scripts/websocket.js";
+        import { initVideoHandler } from "./scripts/video.js";
+        import { initRobotArmClient } from "./scripts/client.js";
         
         // Initialize video frame handler
         initVideoHandler();
+        
+        // Initialize robot arm client (sliders, buttons)
+        initRobotArmClient();
         
         // Connect WebSocket
         connectWebSocket("wss://node-red.xyz/ws/ArmControlSocket");
