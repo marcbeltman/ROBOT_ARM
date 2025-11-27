@@ -32,22 +32,29 @@ export function initRobotArmClient() {
             return;
         }
 
-        function updateServo() {
+        // Update display value on drag (real-time)
+        function updateDisplay() {
             const value = inputEl.value;
             valueEl.textContent = value;
-            
-            // Send servo command via WebSocket
+            console.debug(`[Client] Display updated: ${pair.id} → ${value}`);
+        }
+
+        // Send servo command to WebSocket only on release
+        function sendServoCommand() {
+            const value = inputEl.value;
             sendCommand({
                 type: 'servo',
                 servo: pair.id,
                 value: value
             });
-            console.debug(`[Client] Servo ${pair.id} → ${value}`);
+            console.debug(`[Client] Servo command sent: ${pair.id} → ${value}`);
         }
 
-        // Update on both input (dragging) and change (release)
-        inputEl.addEventListener('input', updateServo);
-        inputEl.addEventListener('change', updateServo);
+        // Update display during drag (input event)
+        inputEl.addEventListener('input', updateDisplay);
+        
+        // Send command only when slider is released (change event)
+        inputEl.addEventListener('change', sendServoCommand);
     });
 
     // Wire gripper buttons
