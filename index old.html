@@ -119,16 +119,83 @@
         </div>
     </div>
 
-    <script type="module">
-        import { connectWebSocket } from "./js/websocket.js";
-        import { initVideoHandler } from "./js/video.js";
-        
-        // Initialize video frame handler
-        initVideoHandler();
-        
-        // Connect WebSocket
-        connectWebSocket("wss://node-red.xyz/ws/ArmControlSocket");
-    </script>
+    <script src="script.js"></script>
+    <script>
+        // Hook up range inputs to value boxes and WebSocket
+        window.client = new RobotArmClient();
+        const map = [
+            {id:'baseSpin', val:'valBaseSpin'},
+            {id:'baseArm', val:'valBaseArm'},
+            {id:'midArm', val:'valMidArm'},
+            {id:'gripper', val:'valGripper'},
+            {id:'cameraPan', val:'valCameraPan'},
+            {id:'cameraTilt', val:'valCameraTilt'}
+        ];
 
+        map.forEach(pair => {
+            const el = document.getElementById(pair.id);
+            const vb = document.getElementById(pair.val);
+            function update(){
+                vb.textContent = el.value;
+                client.moveServo(pair.id, el.value);
+            }
+            el.addEventListener('input', update);
+            el.addEventListener('change', update);
+        });
+
+        // Finger buttons
+        document.getElementById('openBtn').addEventListener('click', ()=>{ client.moveServo('finger','open'); flash('Open'); });
+        document.getElementById('closeBtn').addEventListener('click', ()=>{ client.moveServo('finger','close'); flash('Close'); });
+
+        function flash(text){
+            const orig = document.querySelector('.status span:nth-child(2)').textContent;
+            document.querySelector('.status span:nth-child(2)').textContent = text;
+            setTimeout(()=>document.querySelector('.status span:nth-child(2)').textContent = orig,800);
+        }
+
+        // Camera helpers (optioneel, niet via WebSocket)
+        window.startLocalCamera = async function(constraints = { video: { width: 640 } }){
+            const video = document.getElementById('camera');
+            const fallback = document.getElementById('cameraFallback');
+            const placeholder = document.getElementById('cameraPlaceholder');
+            try{
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                video.style.display = 'block';
+                fallback.style.display = 'none';
+                if(placeholder) placeholder.style.display = 'none';
+            }catch(err){
+                console.warn('Camera start error', err);
+                if(placeholder){ placeholder.textContent = 'Camera error'; placeholder.style.display = 'flex'; }
+                video.style.display = 'none';
+                fallback.style.display = 'block';
+            }
+        }
+
+        window.setMJPEGStream = function(url){
+            const video = document.getElementById('camera');
+            const fallback = document.getElementById('cameraFallback');
+            const placeholder = document.getElementById('cameraPlaceholder');
+            fallback.src = url;
+            fallback.style.display = 'block';
+            video.style.display = 'none';
+            if(placeholder) placeholder.style.display = 'none';
+        }
+
+        window.stopCamera = function(){
+            const video = document.getElementById('camera');
+            const placeholder = document.getElementById('cameraPlaceholder');
+            if(video.srcObject){
+                const tracks = video.srcObject.getTracks();
+                tracks.forEach(t=>t.stop());
+                video.srcObject = null;
+            }
+            video.style.display = 'none';
+            document.getElementById('cameraFallback').style.display = 'block';
+            if(placeholder){ placeholder.textContent = 'Camera offline'; placeholder.style.display = 'flex'; }
+        }
+
+        // Inject test frame functionality removed
+    </script>
 </body>
 </html>
