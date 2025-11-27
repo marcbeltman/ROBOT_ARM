@@ -1,0 +1,7 @@
+# Ignore local backups and legacy folders
+old/
+
+# Node / editor / OS common ignores (optional)
+node_modules/
+.vscode/
+.DS_Store
