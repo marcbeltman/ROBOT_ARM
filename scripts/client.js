@@ -3,7 +3,7 @@
  * Wires range inputs and buttons to WebSocket servo commands
  */
 
-import { sendCommand } from './websocket.js';
+import { sendCommand, addEventListener as onWebSocketEvent } from './websocket.js';
 
 /**
  * Initialize robot arm control handlers
@@ -78,6 +78,62 @@ export function initRobotArmClient() {
     }
 
     console.log('[Client] Robot Arm client initialized');
+
+    // Helper: enable/disable camera pan/tilt controls
+    function setCameraControlsEnabled(enabled) {
+        const controls = [
+            { id: 'cameraPan', val: 'valCameraPan' },
+            { id: 'cameraTilt', val: 'valCameraTilt' }
+        ];
+
+        const statusEl = document.getElementById('cameraStandStatus');
+
+        controls.forEach(c => {
+            const input = document.getElementById(c.id);
+            const valueBox = document.getElementById(c.val);
+            if (input) {
+                input.disabled = !enabled;
+                // optional visual cue
+                if (!enabled) input.classList.add('disabled'); else input.classList.remove('disabled');
+            }
+            if (valueBox) {
+                valueBox.classList.toggle('disabled', !enabled);
+            }
+        });
+        console.debug('[Client] Camera controls', enabled ? 'enabled' : 'disabled');
+
+        // update persistent status element class if present
+        if (statusEl) {
+            statusEl.classList.remove('status-online','status-offline','status-unknown');
+            statusEl.classList.add(enabled ? 'status-online' : 'status-offline');
+            statusEl.textContent = enabled ? 'online' : 'offline';
+        }
+    }
+
+    // Default: camera stand is considered offline until a status message arrives
+    setCameraControlsEnabled(false);
+
+    // Listen for camera stand status messages from the server
+    // Expected payload example: { type: 'cameraStandStatus', online: true }
+    onWebSocketEvent('cameraStandStatus', (payload) => {
+        try {
+            const placeholder = document.getElementById('cameraPlaceholder');
+            if (!placeholder) return;
+
+            if (payload && typeof payload.online === 'boolean') {
+                const online = !!payload.online;
+                placeholder.textContent = online ? 'Camera: online' : 'Camera: offline';
+                // Enable/disable the camera pan/tilt sliders
+                setCameraControlsEnabled(online);
+            } else {
+                // If payload not as expected, show generic status and disable controls
+                placeholder.textContent = 'Camera: status unknown';
+                setCameraControlsEnabled(false);
+            }
+        } catch (err) {
+            console.error('[Client] Error handling cameraStandStatus:', err);
+        }
+    });
 }
 
 /**
