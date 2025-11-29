@@ -313,3 +313,13 @@ input[type=range]::-moz-range-thumb{
         box-shadow: 0 2px 8px rgba(20,20,40,0.06);
     }
 }
+
+/* Camera status styles (persistent textual status under camera) */
+.camera-status{
+    margin-top:10px;
+    font-size:0.95rem;
+    color:var(--muted);
+}
+.camera-status .status-online{ color:#0a8a0a; font-weight:700 }
+.camera-status .status-offline{ color:#c62828; font-weight:700 }
+.camera-status .status-unknown{ color:var(--muted); font-weight:600 }

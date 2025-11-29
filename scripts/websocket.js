@@ -24,7 +24,32 @@ export function connectWebSocket(url) {
     };
 
     ws.onmessage = (event) => {
-        broadcast('message', event.data);
+        const data = event.data;
+
+        // Binary frames (video) — broadcast as 'binary'
+        if (data instanceof ArrayBuffer) {
+            broadcast('binary', data);
+            return;
+        }
+
+        // Text frames — attempt to parse JSON and broadcast by type
+        if (typeof data === 'string') {
+            try {
+                const obj = JSON.parse(data);
+                if (obj && obj.type) {
+                    // Broadcast under the declared type (e.g. 'cameraStandStatus')
+                    broadcast(obj.type, obj);
+                } else {
+                    broadcast('json', obj);
+                }
+                return;
+            } catch (err) {
+                // Not JSON — fall through to text
+            }
+        }
+
+        // Fallback: raw text or unknown
+        broadcast('text', data);
     };
 
     ws.onerror = (err) => {

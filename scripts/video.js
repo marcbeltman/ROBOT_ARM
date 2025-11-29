@@ -22,11 +22,11 @@ let lastObjectUrl = null;
 export function initVideoHandler() {
     console.log('[Video] Initializing video handler');
     
-    // Subscribe to WebSocket messages
-    onWebSocketEvent('message', (data) => {
+    // Subscribe to WebSocket binary frames (video)
+    onWebSocketEvent('binary', (data) => {
         // Only process binary frames (ArrayBuffer)
         if (!(data instanceof ArrayBuffer)) {
-            console.debug('[Video] Skipping non-ArrayBuffer message');
+            console.debug('[Video] Skipping non-ArrayBuffer binary message');
             return;
         }
 
