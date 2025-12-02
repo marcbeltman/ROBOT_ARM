@@ -137,6 +137,8 @@ export function initRobotArmClient() {
 
     // Listen for error messages from the server
     // Expected payload example: { type: 'error', message: 'Session already active.' }
+    // Listen for error messages from the server
+    // Expected payload example: { type: 'error', message: 'Session already active.' }
     onWebSocketEvent('error', (payload) => {
         try {
             if (payload && payload.message) {
@@ -145,6 +147,14 @@ export function initRobotArmClient() {
                 // Handle specific error cases
                 if (payload.message === 'Session already active.') {
                     console.warn('[Client] ⚠️ Another session is already active. Please close other tabs or wait for the session to expire.');
+
+                    // Update session status indicator
+                    const statusEl = document.getElementById('sessionStatus');
+                    if (statusEl) {
+                        statusEl.textContent = 'Occupied';
+                        statusEl.classList.remove('status-active');
+                        statusEl.classList.add('status-occupied');
+                    }
                 }
             }
         } catch (err) {

@@ -323,3 +323,26 @@ input[type=range]::-moz-range-thumb{
 .camera-status .status-online{ color:#0a8a0a; font-weight:700 }
 .camera-status .status-offline{ color:#c62828; font-weight:700 }
 .camera-status .status-unknown{ color:var(--muted); font-weight:600 }
+
+/* Session Status Indicator */
+.session-status {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.status-active {
+    color: var(--success, #2ecc71);
+    background-color: rgba(46, 204, 113, 0.1);
+    border: 1px solid rgba(46, 204, 113, 0.2);
+}
+
+.status-occupied {
+    color: var(--error, #e74c3c);
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
