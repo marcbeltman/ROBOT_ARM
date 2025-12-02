@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="nl">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
@@ -8,10 +9,11 @@
     <title>Robot Arm Control</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="panel" role="main">
         <h1>Robot Arm Control</h1>
-        <div id="sessionStatus" class="session-status status-active">Active</div>
+        <div id="sessionStatus" class="session-status status-occupied">Occupied</div>
 
         <!-- Camera Section -->
         <section class="section camera-section" aria-labelledby="cameraHeading">
@@ -51,7 +53,7 @@
                 </div>
             </div>
 
-                <!-- Inject test frame removed -->
+            <!-- Inject test frame removed -->
         </section>
 
         <!-- Robot Arm Section -->
@@ -65,65 +67,67 @@
                 <span>Arm offline</span>
             </div>
 
-        <div class="desc">If the robot arm is online adjust the sliders to control it. Changes are automatically sent to the robot arm.</div>
+            <div class="desc">If the robot arm is online adjust the sliders to control it. Changes are automatically
+                sent to the robot arm.</div>
 
-        <div class="control">
-            <div class="control-row">
-                <div class="label">Base Spin</div>
-                <div class="slider-wrap">
-                    <input id="baseSpin" type="range" min="0" max="180" value="90">
+            <div class="control">
+                <div class="control-row">
+                    <div class="label">Base Spin</div>
+                    <div class="slider-wrap">
+                        <input id="baseSpin" type="range" min="0" max="180" value="90">
+                    </div>
+                    <div class="value-box" id="valBaseSpin">90</div>
                 </div>
-                <div class="value-box" id="valBaseSpin">90</div>
-            </div>
 
-            <div class="control-row">
-                <div class="label">Base Arm</div>
-                <div class="slider-wrap">
-                    <input id="baseArm" type="range" min="0" max="180" value="90">
+                <div class="control-row">
+                    <div class="label">Base Arm</div>
+                    <div class="slider-wrap">
+                        <input id="baseArm" type="range" min="0" max="180" value="90">
+                    </div>
+                    <div class="value-box" id="valBaseArm">90</div>
                 </div>
-                <div class="value-box" id="valBaseArm">90</div>
-            </div>
 
-            <div class="control-row">
-                <div class="label">Mid Arm</div>
-                <div class="slider-wrap">
-                    <input id="midArm" type="range" min="0" max="180" value="90">
+                <div class="control-row">
+                    <div class="label">Mid Arm</div>
+                    <div class="slider-wrap">
+                        <input id="midArm" type="range" min="0" max="180" value="90">
+                    </div>
+                    <div class="value-box" id="valMidArm">90</div>
                 </div>
-                <div class="value-box" id="valMidArm">90</div>
-            </div>
 
-            <div class="control-row">
-                <div class="label">Gripper Arm</div>
-                <div class="slider-wrap">
-                    <input id="gripper" type="range" min="0" max="180" value="90">
+                <div class="control-row">
+                    <div class="label">Gripper Arm</div>
+                    <div class="slider-wrap">
+                        <input id="gripper" type="range" min="0" max="180" value="90">
+                    </div>
+                    <div class="value-box" id="valGripper">90</div>
                 </div>
-                <div class="value-box" id="valGripper">90</div>
-            </div>
 
-            <div style="margin-top:8px">
-                <div class="label" style="margin-bottom:8px;color:var(--accent);font-weight:700">Finger</div>
-                <div class="finger-actions">
-                    <button class="btn" id="openBtn">Open</button>
-                    <button class="btn" id="closeBtn">Close</button>
+                <div style="margin-top:8px">
+                    <div class="label" style="margin-bottom:8px;color:var(--accent);font-weight:700">Finger</div>
+                    <div class="finger-actions">
+                        <button class="btn" id="openBtn">Open</button>
+                        <button class="btn" id="closeBtn">Close</button>
+                    </div>
                 </div>
             </div>
-        </div>
     </div>
 
     <script type="module">
         import { connectWebSocket } from "./scripts/websocket.js";
         import { initVideoHandler } from "./scripts/video.js";
         import { initRobotArmClient } from "./scripts/client.js";
-        
+
         // Initialize video frame handler
         initVideoHandler();
-        
+
         // Initialize robot arm client (sliders, buttons)
         initRobotArmClient();
-        
+
         // Connect WebSocket
         connectWebSocket("wss://node-red.xyz/ws/ArmControlSocket");
     </script>
 
 </body>
+
 </html>
