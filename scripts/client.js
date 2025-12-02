@@ -161,6 +161,24 @@ export function initRobotArmClient() {
             console.error('[Client] Error handling server error message:', err);
         }
     });
+
+    // Listen for session active confirmation from the server
+    // Expected payload example: { type: 'sessionActive' }
+    onWebSocketEvent('sessionActive', (payload) => {
+        try {
+            console.log('[Client] ✓ Session is now active');
+
+            // Update session status indicator to Active
+            const statusEl = document.getElementById('sessionStatus');
+            if (statusEl) {
+                statusEl.textContent = 'Active';
+                statusEl.classList.remove('status-occupied');
+                statusEl.classList.add('status-active');
+            }
+        } catch (err) {
+            console.error('[Client] Error handling sessionActive message:', err);
+        }
+    });
 }
 
 /**
