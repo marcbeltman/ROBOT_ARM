@@ -8,18 +8,23 @@ let reconnectDelay = 1000;
 const MAX_RECONNECT = 30000;
 const listeners = {};
 
+// Heartbeat configuration
+let heartbeatInterval = null;
+const HEARTBEAT_INTERVAL = 10000; // 10 seconds
+
 /**
  * Open a WebSocket connection with exponential backoff reconnect on close/error
  */
 export function connectWebSocket(url) {
     console.log(`[WebSocket] Connecting to ${url}...`);
-    
+
     ws = new WebSocket(url);
     ws.binaryType = 'arraybuffer';
 
     ws.onopen = () => {
         console.log('[WebSocket] Connected');
         reconnectDelay = 1000; // reset backoff
+        startHeartbeat();
         broadcast('open');
     };
 
@@ -59,8 +64,9 @@ export function connectWebSocket(url) {
 
     ws.onclose = (ev) => {
         console.log(`[WebSocket] Closed (reason: ${ev.reason || 'unknown'})`);
+        stopHeartbeat();
         broadcast('close', ev);
-        
+
         // Attempt reconnect with exponential backoff
         setTimeout(() => {
             reconnectDelay = Math.min(reconnectDelay * 1.5, MAX_RECONNECT);
@@ -132,3 +138,30 @@ export function isConnected() {
 export function getWebSocket() {
     return ws;
 }
+
+/**
+ * Start sending periodic heartbeat messages
+ */
+function startHeartbeat() {
+    stopHeartbeat(); // Clear any existing interval
+    console.log('[WebSocket] Starting heartbeat');
+
+    heartbeatInterval = setInterval(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            sendCommand({ type: 'heartbeat', timestamp: Date.now() });
+            console.log('[WebSocket] Heartbeat sent');
+        }
+    }, HEARTBEAT_INTERVAL);
+}
+
+/**
+ * Stop sending heartbeat messages
+ */
+function stopHeartbeat() {
+    if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+        console.log('[WebSocket] Heartbeat stopped');
+    }
+}
+

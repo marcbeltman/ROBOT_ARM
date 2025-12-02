@@ -11,7 +11,7 @@ import { sendCommand, addEventListener as onWebSocketEvent } from './websocket.j
  */
 export function initRobotArmClient() {
     console.log('[Client] Initializing Robot Arm client');
-    
+
     // Define servo mappings: input element id → value display id
     const servoMap = [
         { id: 'baseSpin', val: 'valBaseSpin' },
@@ -52,7 +52,7 @@ export function initRobotArmClient() {
 
         // Update display during drag (input event)
         inputEl.addEventListener('input', updateDisplay);
-        
+
         // Send command only when slider is released (change event)
         inputEl.addEventListener('change', sendServoCommand);
     });
@@ -104,7 +104,7 @@ export function initRobotArmClient() {
 
         // update persistent status element class if present
         if (statusEl) {
-            statusEl.classList.remove('status-online','status-offline','status-unknown');
+            statusEl.classList.remove('status-online', 'status-offline', 'status-unknown');
             statusEl.classList.add(enabled ? 'status-online' : 'status-offline');
             statusEl.textContent = enabled ? 'online' : 'offline';
         }
@@ -134,6 +134,23 @@ export function initRobotArmClient() {
             console.error('[Client] Error handling cameraStandStatus:', err);
         }
     });
+
+    // Listen for error messages from the server
+    // Expected payload example: { type: 'error', message: 'Session already active.' }
+    onWebSocketEvent('error', (payload) => {
+        try {
+            if (payload && payload.message) {
+                console.error('[Client] Server error:', payload.message);
+
+                // Handle specific error cases
+                if (payload.message === 'Session already active.') {
+                    console.warn('[Client] ⚠️ Another session is already active. Please close other tabs or wait for the session to expire.');
+                }
+            }
+        } catch (err) {
+            console.error('[Client] Error handling server error message:', err);
+        }
+    });
 }
 
 /**
@@ -148,7 +165,7 @@ function flashStatus(text) {
 
     const originalText = statusSpan.textContent;
     statusSpan.textContent = text;
-    
+
     setTimeout(() => {
         statusSpan.textContent = originalText;
     }, 800);
@@ -173,7 +190,7 @@ export function controlGripper(action) {
         console.error('[Client] Invalid gripper action:', action);
         return;
     }
-    
+
     sendCommand({
         type: 'gripper',
         action: action
