@@ -5,6 +5,10 @@
 
 import { sendCommand, addEventListener as onWebSocketEvent } from './websocket.js';
 
+// Global state tracking
+let isSessionActive = false;  // Track if this session is the active session
+let isCameraStandOnline = false;  // Track camera stand online status
+
 /**
  * Initialize robot arm control handlers
  * Connects all sliders to their value displays and WebSocket commands
@@ -79,6 +83,30 @@ export function initRobotArmClient() {
 
     console.log('[Client] Robot Arm client initialized');
 
+    // Helper: enable/disable ALL controls based on session state
+    function setAllControlsEnabled(enabled) {
+        // Robot arm sliders - always follow session state
+        const robotSliders = ['baseSpin', 'baseArm', 'midArm', 'gripper'];
+        robotSliders.forEach(id => {
+            const input = document.getElementById(id);
+            const valueBox = document.getElementById(`val${id.charAt(0).toUpperCase() + id.slice(1)}`);
+            if (input) {
+                input.disabled = !enabled;
+                if (!enabled) input.classList.add('disabled'); else input.classList.remove('disabled');
+            }
+            if (valueBox) {
+                valueBox.classList.toggle('disabled', !enabled);
+            }
+        });
+
+        // Camera sliders - only enabled if session is active AND camera stand is online
+        const cameraEnabled = enabled && isCameraStandOnline;
+        setCameraControlsEnabled(cameraEnabled);
+
+        console.debug('[Client] All controls', enabled ? 'enabled' : 'disabled',
+            `(camera: ${cameraEnabled ? 'enabled' : 'disabled'})`);
+    }
+
     // Helper: enable/disable camera pan/tilt controls
     function setCameraControlsEnabled(enabled) {
         const controls = [
@@ -122,13 +150,20 @@ export function initRobotArmClient() {
 
             if (payload && typeof payload.online === 'boolean') {
                 const online = !!payload.online;
+                isCameraStandOnline = online;  // Update global state
                 placeholder.textContent = online ? 'Camera: online' : 'Camera: offline';
-                // Enable/disable the camera pan/tilt sliders
-                setCameraControlsEnabled(online);
+
+                // Only enable/disable camera controls if session is active
+                if (isSessionActive) {
+                    setCameraControlsEnabled(online);
+                }
             } else {
                 // If payload not as expected, show generic status and disable controls
+                isCameraStandOnline = false;
                 placeholder.textContent = 'Camera: status unknown';
-                setCameraControlsEnabled(false);
+                if (isSessionActive) {
+                    setCameraControlsEnabled(false);
+                }
             }
         } catch (err) {
             console.error('[Client] Error handling cameraStandStatus:', err);
@@ -147,6 +182,10 @@ export function initRobotArmClient() {
                 // Handle specific error cases
                 if (payload.message === 'Session already active.') {
                     console.warn('[Client] ⚠️ Another session is already active. Please close other tabs or wait for the session to expire.');
+
+                    // Update session state and disable all controls
+                    isSessionActive = false;
+                    setAllControlsEnabled(false);
 
                     // Update session status indicator
                     const statusEl = document.getElementById('sessionStatus');
@@ -167,6 +206,10 @@ export function initRobotArmClient() {
     onWebSocketEvent('sessionActive', (payload) => {
         try {
             console.log('[Client] ✓ Session is now active');
+
+            // Update session state and enable all controls
+            isSessionActive = true;
+            setAllControlsEnabled(true);
 
             // Update session status indicator to Active
             const statusEl = document.getElementById('sessionStatus');
