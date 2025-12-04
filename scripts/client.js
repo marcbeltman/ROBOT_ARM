@@ -228,8 +228,10 @@ export function initRobotArmClient() {
     onWebSocketEvent('ack', (payload) => {
         if (payload && payload.message) {
             console.log(`[Client] ✓ ${payload.message}`);
+            flashStatus(`✓ ${payload.message}`);
         } else {
             console.log('[Client] ✓ Command acknowledged');
+            flashStatus('✓ Command sent successfully');
         }
     });
 }
