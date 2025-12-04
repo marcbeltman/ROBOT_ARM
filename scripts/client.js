@@ -222,6 +222,12 @@ export function initRobotArmClient() {
             console.error('[Client] Error handling sessionActive message:', err);
         }
     });
+
+    // Listen for command acknowledgements from the server
+    // Expected payload example: { type: 'ack' }
+    onWebSocketEvent('ack', (payload) => {
+        console.debug('[Client] ✓ Command acknowledged');
+    });
 }
 
 /**
