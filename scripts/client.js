@@ -226,7 +226,11 @@ export function initRobotArmClient() {
     // Listen for command acknowledgements from the server
     // Expected payload example: { type: 'ack' }
     onWebSocketEvent('ack', (payload) => {
-        console.debug('[Client] ✓ Command acknowledged');
+        if (payload && payload.message) {
+            console.log(`[Client] ✓ ${payload.message}`);
+        } else {
+            console.log('[Client] ✓ Command acknowledged');
+        }
     });
 }
 

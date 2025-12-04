@@ -41,6 +41,7 @@ export function connectWebSocket(url) {
         if (typeof data === 'string') {
             try {
                 const obj = JSON.parse(data);
+                console.log('[WebSocket] Received:', obj);  // DEBUG: Log all incoming messages
                 if (obj && obj.type) {
                     // Broadcast under the declared type (e.g. 'cameraStandStatus')
                     broadcast(obj.type, obj);
