@@ -62,9 +62,13 @@
                 <h2 id="armHeading">Robot Arm</h2>
             </div>
 
-            <div class="status" aria-live="polite">
-                <span class="dot" aria-hidden="true"></span>
-                <span></span>
+            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+
+                <span style="color: #000; font-weight: 600;">Command Status:</span>
+                <div class="status" aria-live="polite"
+                    style="display: inline-flex; align-items: center; gap: 6px; margin: 0;">
+                    <span></span>
+                </div>
             </div>
 
             <div class="desc">If the robot arm is online adjust the sliders to control it. Changes are automatically
