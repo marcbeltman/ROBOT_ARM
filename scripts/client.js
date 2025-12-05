@@ -149,7 +149,7 @@ export function initRobotArmClient() {
             if (payload && typeof payload.online === 'boolean') {
                 const online = !!payload.online;
                 isCameraStandOnline = online;  // Update global state
-                placeholder.textContent = online ? 'Camera: online' : 'Camera: offline';
+                // placeholder.textContent = online ? 'Camera: online' : 'Camera: offline';
 
                 // Only enable/disable camera controls if session is active
                 if (isSessionActive) {
