@@ -3,7 +3,7 @@
  * Wires range inputs and buttons to WebSocket servo commands
  */
 
-import { sendCommand, addEventListener as onWebSocketEvent } from './websocket.js?t=1733393000';
+import { sendCommand, addEventListener as onWebSocketEvent } from './websocket.js';
 
 // Global state tracking
 let isSessionActive = false;  // Track if this session is the active session
@@ -68,7 +68,6 @@ export function initRobotArmClient() {
     if (openBtn) {
         openBtn.addEventListener('click', () => {
             sendCommand({ type: 'gripper', action: 'open' });
-            flashStatus('Open');
             console.debug('[Client] Gripper: open');
         });
     }
@@ -76,7 +75,6 @@ export function initRobotArmClient() {
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
             sendCommand({ type: 'gripper', action: 'close' });
-            flashStatus('Close');
             console.debug('[Client] Gripper: close');
         });
     }
