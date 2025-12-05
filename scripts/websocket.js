@@ -115,6 +115,7 @@ export function removeEventListener(event, callback) {
  * Internal: broadcast events to all registered listeners
  */
 function broadcast(event, data) {
+    console.debug(`[WebSocket] Broadcasting '${event}' to ${listeners[event] ? listeners[event].length : 0} listener(s)`);
     if (listeners[event]) {
         listeners[event].forEach(cb => {
             try {

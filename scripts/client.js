@@ -3,7 +3,7 @@
  * Wires range inputs and buttons to WebSocket servo commands
  */
 
-import { sendCommand, addEventListener as onWebSocketEvent } from './websocket.js';
+import { sendCommand, addEventListener as onWebSocketEvent } from './websocket.js?t=1733391500';
 
 // Global state tracking
 let isSessionActive = false;  // Track if this session is the active session
@@ -240,7 +240,7 @@ export function initRobotArmClient() {
  * Flash a temporary message in the status display
  */
 function flashStatus(text) {
-    const statusSpan = document.querySelector('.status span:nth-child(2)');
+    const statusSpan = document.querySelector('.status span');
     if (!statusSpan) {
         console.warn('[Client] Status display element not found');
         return;
