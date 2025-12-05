@@ -3,7 +3,7 @@
  * Wires range inputs and buttons to WebSocket servo commands
  */
 
-import { sendCommand, addEventListener as onWebSocketEvent } from './websocket.js?t=1733391500';
+import { sendCommand, addEventListener as onWebSocketEvent } from './websocket.js?t=1733393000';
 
 // Global state tracking
 let isSessionActive = false;  // Track if this session is the active session
@@ -223,15 +223,24 @@ export function initRobotArmClient() {
         }
     });
 
+    // // Listen for command acknowledgements from the server
+    // // Expected payload example: { type: 'ack', message: 'Saved' }
+    // onWebSocketEvent('ack', (payload) => {
+    //     if (payload && payload.message) {
+    //         console.log(`[Client] ✓ ${payload.message}`);
+    //         flashStatus(`✓ ${payload.message}`);
+    //     } else {
+    //         console.log('[Client] ✓ Command acknowledged');
+    //         flashStatus('✓ Command sent successfully');
+    //     }
+    // });
+
     // Listen for command acknowledgements from the server
     // Expected payload example: { type: 'ack', message: 'Saved' }
     onWebSocketEvent('ack', (payload) => {
         if (payload && payload.message) {
-            console.log(`[Client] ✓ ${payload.message}`);
-            flashStatus(`✓ ${payload.message}`);
-        } else {
             console.log('[Client] ✓ Command acknowledged');
-            flashStatus('✓ Command sent successfully');
+            flashStatus(`${payload.message}`);
         }
     });
 }
