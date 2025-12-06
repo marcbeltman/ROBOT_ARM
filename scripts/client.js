@@ -46,12 +46,19 @@ export function initRobotArmClient() {
         // Send servo command to WebSocket only on release
         function sendServoCommand() {
             const value = inputEl.value;
+
+            // Map internal IDs to protocol names where needed
+            const nameMap = {
+                'cameraPan': 'pan',
+                'cameraTilt': 'tilt'
+            };
+            const servoName = nameMap[pair.id] || pair.id;
+
             sendCommand({
-                type: 'servo',
-                servo: pair.id,
-                value: value
+                servo: servoName,
+                angle: parseInt(value, 10)
             });
-            console.debug(`[Client] Servo command sent: ${pair.id} → ${value}`);
+            console.debug(`[Client] Servo command sent: ${pair.id} (${servoName}) → ${value}`);
         }
 
         // Update display during drag (input event)
@@ -265,10 +272,16 @@ function flashStatus(text) {
  * Utility: send a custom servo command
  */
 export function moveServo(servoId, value) {
+    // Map internal IDs to protocol names where needed
+    const nameMap = {
+        'cameraPan': 'pan',
+        'cameraTilt': 'tilt'
+    };
+    const servoName = nameMap[servoId] || servoId;
+
     sendCommand({
-        type: 'servo',
-        servo: servoId,
-        value: value
+        servo: servoName,
+        angle: parseInt(value, 10)
     });
 }
 
