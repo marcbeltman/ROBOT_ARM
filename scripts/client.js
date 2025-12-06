@@ -248,6 +248,22 @@ export function initRobotArmClient() {
             flashStatus(`${payload.message}`);
         }
     });
+
+    // Listen for connection count updates
+    // Topic: 'connection_count', Payload: { connection_count: 5, ... }
+    onWebSocketEvent('connection_count', (msg) => {
+        try {
+            const countEl = document.getElementById('connectionCount');
+            // msg IS the payload now, so we access connection_count directly
+            if (countEl && typeof msg.connection_count === 'number') {
+                countEl.textContent = msg.connection_count;
+            } else if (countEl) {
+                countEl.textContent = '-';
+            }
+        } catch (err) {
+            console.error('[Client] Error handling connection_count:', err);
+        }
+    });
 }
 
 /**

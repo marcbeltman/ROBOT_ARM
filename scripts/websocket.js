@@ -41,10 +41,15 @@ export function connectWebSocket(url) {
         if (typeof data === 'string') {
             try {
                 const obj = JSON.parse(data);
-                console.log('[WebSocket] Received:', obj);  // DEBUG: Log all incoming messages
                 if (obj && obj.type) {
                     // Broadcast under the declared type (e.g. 'cameraStandStatus')
                     broadcast(obj.type, obj);
+                } else if (obj && obj.topic) {
+                    // Support Node-RED style messages where topic acts as the type
+                    broadcast(obj.topic, obj);
+                } else if (obj && obj.connection_count !== undefined) {
+                    // Detect connection count message if sent as raw payload
+                    broadcast('connection_count', obj);
                 } else {
                     broadcast('json', obj);
                 }
