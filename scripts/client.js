@@ -16,6 +16,14 @@ let isCameraStandOnline = false;  // Track camera stand online status
 export function initRobotArmClient() {
     console.log('[Client] Initializing Robot Arm client');
 
+    // Stuur een POST request naar Node-RED
+    fetch("https://node-red.xyz/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ datum: new Date().toISOString() })
+    });
+
+
     // Define servo mappings: input element id → value display id
     const servoMap = [
         { id: 'baseSpin', val: 'valBaseSpin' },
