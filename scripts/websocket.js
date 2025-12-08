@@ -1,7 +1,18 @@
 /*
  * WebSocket connection manager with automatic reconnect and event broadcasting
- * Exports: connectWebSocket(url), sendCommand(obj), addEventListener(event, callback)
+ * Exports: connectWebSocket(url), sendCommand(obj), addEventListener(event, callback), sessionID
  */
+
+// 1. Probeer een bestaande ID te vinden in het geheugen van de browser
+let existingID = sessionStorage.getItem('mijn_sessie_id');
+// 2. Als die er niet is (eerste bezoek), maak dan pas een nieuwe aan
+if (!existingID) {
+    existingID = crypto.randomUUID();
+    // Sla hem op! Deze blijft bestaan zolang de tab open is.
+    sessionStorage.setItem('mijn_sessie_id', existingID);
+}
+
+export const sessionID = existingID;
 
 let ws = null;
 let reconnectDelay = 1000;
@@ -155,7 +166,7 @@ function startHeartbeat() {
 
     heartbeatInterval = setInterval(() => {
         if (ws && ws.readyState === WebSocket.OPEN) {
-            sendCommand({ type: 'heartbeat', timestamp: Date.now() });
+            sendCommand({ type: 'heartbeat', timestamp: Date.now(), sessionID: sessionID });
             console.log('[WebSocket] Heartbeat sent');
         }
     }, HEARTBEAT_INTERVAL);
