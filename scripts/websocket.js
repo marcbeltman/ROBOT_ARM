@@ -183,3 +183,17 @@ function stopHeartbeat() {
     }
 }
 
+
+// Als de gebruiker het venster sluit, stuur snel een afmeld-bericht
+window.addEventListener('beforeunload', function () {
+    // Check of we verbonden zijn
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        // Haal je ID op (die we eerder maakten)
+        let id = sessionStorage.getItem('mijn_sessie_id');
+
+        ws.send(JSON.stringify({
+            type: "disconnect",
+            sessionID: id
+        }));
+    }
+});
