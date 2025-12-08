@@ -3,7 +3,7 @@
  * Wires range inputs and buttons to WebSocket servo commands
  */
 
-import { sendCommand, addEventListener as onWebSocketEvent } from './websocket.js';
+import { sendCommand, addEventListener as onWebSocketEvent, sessionID } from './websocket.js';
 
 // Global state tracking
 let isSessionActive = false;  // Track if this session is the active session
@@ -17,10 +17,13 @@ export function initRobotArmClient() {
     console.log('[Client] Initializing Robot Arm client');
 
     // Stuur een POST request naar Node-RED
+    const logPayload = { datum: new Date().toISOString(), sessionID: sessionID };
+    console.log('[Client] Sending HTTP log:', logPayload);
+
     fetch("https://node-red.xyz/log", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ datum: new Date().toISOString() })
+        body: JSON.stringify(logPayload)
     });
 
 
