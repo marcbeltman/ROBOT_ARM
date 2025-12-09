@@ -98,6 +98,8 @@ export function initRobotArmClient() {
     }
 
     console.log('[Client] Robot Arm client initialized');
+    // Start with all controls disabled until we are confirmed owner
+    setAllControlsEnabled(false);
 
     // Helper: enable/disable ALL controls based on session state
     function setAllControlsEnabled(enabled) {
@@ -218,10 +220,24 @@ export function initRobotArmClient() {
     });
 
     // Listen for session active confirmation from the server
-    // Expected payload example: { type: 'sessionActive' }
+    // Expected payload example: { type: 'sessionActive', status: 'owner', position: 0 }
     onWebSocketEvent('sessionActive', (payload) => {
         try {
-            console.log('[Client] ✓ Session is now active');
+            const isOwner = payload && payload.status === 'owner';
+            if (!isOwner) {
+                console.warn('[Client] Session active message received, but not owner. Disabling controls.');
+                isSessionActive = false;
+                setAllControlsEnabled(false);
+                const statusEl = document.getElementById('sessionStatus');
+                if (statusEl) {
+                    statusEl.textContent = 'Waiting';
+                    statusEl.classList.remove('status-active');
+                    statusEl.classList.add('status-occupied');
+                }
+                return;
+            }
+
+            console.log('[Client] ✓ Session is now active (owner)');
 
             // Update session state and enable all controls
             isSessionActive = true;
@@ -236,6 +252,32 @@ export function initRobotArmClient() {
             }
         } catch (err) {
             console.error('[Client] Error handling sessionActive message:', err);
+        }
+    });
+
+    // Listen for queue wait messages
+    // Expected payload example: { type: 'queueWait', status: 'waiting', position: n, queueLength: m }
+    onWebSocketEvent('queueWait', (payload) => {
+        try {
+            isSessionActive = false;
+            setAllControlsEnabled(false);
+
+            const position = typeof payload?.position === 'number' ? payload.position : null;
+            const queueLength = typeof payload?.queueLength === 'number' ? payload.queueLength : null;
+
+            const statusEl = document.getElementById('sessionStatus');
+            if (statusEl) {
+                const posText = position !== null ? `Waiting (pos ${position}${queueLength !== null ? `/${queueLength}` : ''})` : 'Waiting';
+                statusEl.textContent = posText;
+                statusEl.classList.remove('status-active');
+                statusEl.classList.add('status-occupied');
+            }
+
+            // Optional visual feedback
+            // Command status: keep it concise
+            flashStatus('Waiting');
+        } catch (err) {
+            console.error('[Client] Error handling queueWait message:', err);
         }
     });
 

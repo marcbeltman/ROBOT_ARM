@@ -52,7 +52,10 @@ export function connectWebSocket(url) {
         if (typeof data === 'string') {
             try {
                 const obj = JSON.parse(data);
-                if (obj && obj.type) {
+                // Prefer nested payload.type for Node-RED style messages
+                if (obj && obj.payload && typeof obj.payload === 'object' && obj.payload.type) {
+                    broadcast(obj.payload.type, obj.payload);
+                } else if (obj && obj.type) {
                     // Broadcast under the declared type (e.g. 'cameraStandStatus')
                     broadcast(obj.type, obj);
                 } else if (obj && obj.topic) {
