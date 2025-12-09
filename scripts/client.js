@@ -317,6 +317,87 @@ export function initRobotArmClient() {
             console.error('[Client] Error handling connection_count:', err);
         }
     });
+
+    // Listen for user list updates
+    // Payload: { type: 'userListUpdate', totalUsers: 4, users: [...] }
+    onWebSocketEvent('userListUpdate', (payload) => {
+        try {
+            updateUserList(payload);
+        } catch (err) {
+            console.error('[Client] Error handling userListUpdate:', err);
+        }
+    });
+}
+
+/**
+ * Update the user list display in the connections popup
+ */
+function updateUserList(payload) {
+    const container = document.getElementById('userListContainer');
+    if (!container) {
+        console.warn('[Client] User list container not found');
+        return;
+    }
+
+    if (!payload || !Array.isArray(payload.users)) {
+        container.innerHTML = '<p class="user-list-error">No user data available.</p>';
+        return;
+    }
+
+    const users = payload.users;
+    const totalUsers = payload.totalUsers || users.length;
+
+    if (users.length === 0) {
+        container.innerHTML = '<p class="user-list-empty">No active users.</p>';
+        return;
+    }
+
+    // Create user list HTML
+    let html = `<div class="user-list-header">
+        <p><strong>Total users:</strong> ${totalUsers}</p>
+    </div>
+    <div class="user-list">`;
+
+    users.forEach((user) => {
+        const userNumber = String(user.position || 0).padStart(2, '0');
+        const userName = `user-${userNumber}`;
+        const isOwner = user.isOwner ? '<span class="user-owner-badge">Owner</span>' : '';
+        const deviceType = user.mobile ? 'Mobile' : 'Desktop';
+        const deviceIcon = user.mobile ? '📱' : '💻';
+        const location = user.city && user.country ? `${user.city}, ${user.country}` : (user.city || user.country || 'Unknown');
+        
+        html += `
+        <div class="user-item ${user.isOwner ? 'user-owner' : ''}">
+            <div class="user-item-header">
+                <span class="user-name">${userName}</span>
+                ${isOwner}
+            </div>
+            <div class="user-item-details">
+                <div class="user-detail-row">
+                    <span class="user-label">Position:</span>
+                    <span class="user-value">${user.position || '-'}</span>
+                </div>
+                <div class="user-detail-row">
+                    <span class="user-label">Device:</span>
+                    <span class="user-value">${deviceIcon} ${deviceType}</span>
+                </div>
+                <div class="user-detail-row">
+                    <span class="user-label">Location:</span>
+                    <span class="user-value">${location}</span>
+                </div>
+                <div class="user-detail-row">
+                    <span class="user-label">Last seen:</span>
+                    <span class="user-value">${user.lastSeen || '-'}</span>
+                </div>
+                ${user.uuid ? `<div class="user-uuid">${user.uuid}</div>` : ''}
+            </div>
+        </div>`;
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+
+    console.debug(`[Client] User list updated: ${users.length} users`);
 }
 
 /**

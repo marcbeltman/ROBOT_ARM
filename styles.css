@@ -671,6 +671,121 @@ input[type=range]::-moz-range-thumb {
     font-size: 14px;
 }
 
+/* User List Styles */
+.user-list-loading,
+.user-list-error,
+.user-list-empty {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin: 20px 0;
+}
+
+.user-list-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e6e6e9;
+}
+
+.user-list-header p {
+    margin: 0;
+    font-size: 14px;
+    color: #1f2937;
+}
+
+.user-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.user-item {
+    background: var(--control-bg);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    border: 1px solid #e6e6e9;
+    transition: all 0.2s ease;
+}
+
+.user-item:hover {
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.user-item.user-owner {
+    border-color: #2ecc71;
+    background: #f0f9f4;
+}
+
+.user-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.user-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: #1f2937;
+}
+
+.user-owner-badge {
+    background: #2ecc71;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.user-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.user-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.user-label {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.user-value {
+    color: #1f2937;
+    font-weight: 600;
+    text-align: right;
+}
+
+.user-uuid {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e6e6e9;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Courier New', monospace;
+    word-break: break-all;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.2s ease, max-height 0.2s ease, margin-top 0.2s ease, padding-top 0.2s ease;
+}
+
+.user-item:hover .user-uuid {
+    opacity: 1;
+    max-height: 100px;
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
 /* Mobile adjustments for popup */
 @media (max-width: 599px) {
     .connections-popup {
