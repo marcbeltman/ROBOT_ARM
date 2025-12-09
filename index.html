@@ -7,7 +7,7 @@
     <meta name="description" content="Remote Arm Control Interface - Live camera feed and servo control">
     <meta name="theme-color" content="#ffffff">
     <title>Remote Arm Control</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
 </head>
 
 <body>
@@ -62,9 +62,31 @@
                 <h2 id="armHeading">Robot Arm</h2>
             </div>
 
-            <div style="margin-bottom: 4px;">
-                <span style="color: #000; font-weight: 600;">Connections:</span>
-                <span id="connectionCount">waiting...</span>
+            <div style="margin-bottom: 4px; width: 100%; overflow: visible;">
+                <button id="connectionsHeader" class="connections-header" style="background: none; cursor: pointer; color: #000; font-weight: 600; text-align: left;">
+                    Connections: <span id="connectionCount">waiting...</span>
+                </button>
+            </div>
+
+            <!-- Connections Info Popup -->
+            <div id="connectionsPopup" class="connections-popup hidden">
+                <div class="connections-popup-content">
+                    <div class="connections-popup-header">
+                        <h3>Connections Informatie</h3>
+                        <button id="closeConnectionsPopup" class="connections-popup-close" aria-label="Sluiten">&times;</button>
+                    </div>
+                    <div class="connections-popup-body">
+                        <p>Hier komt later meer informatie over de verschillende connecties.</p>
+                        <p>Dit is dummytekst om de popup te testen en te zien hoe deze eruit ziet.</p>
+                        <p>Je kunt hier bijvoorbeeld details tonen over elke actieve verbinding, zoals:</p>
+                        <ul>
+                            <li>Session ID</li>
+                            <li>Verbindingstijd</li>
+                            <li>Status</li>
+                            <li>Laatste activiteit</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
             <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
@@ -135,6 +157,45 @@
 
         // Connect WebSocket
         connectWebSocket("wss://node-red.xyz/ws/ArmControlSocket");
+
+        // Connections popup functionality
+        const connectionsHeader = document.getElementById('connectionsHeader');
+        const connectionsPopup = document.getElementById('connectionsPopup');
+        const closeConnectionsPopup = document.getElementById('closeConnectionsPopup');
+
+        function openConnectionsPopup() {
+            connectionsPopup.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeConnectionsPopupFunc() {
+            connectionsPopup.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        if (connectionsHeader) {
+            connectionsHeader.addEventListener('click', openConnectionsPopup);
+        }
+
+        if (closeConnectionsPopup) {
+            closeConnectionsPopup.addEventListener('click', closeConnectionsPopupFunc);
+        }
+
+        // Close popup when clicking outside the content
+        if (connectionsPopup) {
+            connectionsPopup.addEventListener('click', (e) => {
+                if (e.target === connectionsPopup) {
+                    closeConnectionsPopupFunc();
+                }
+            });
+        }
+
+        // Close popup with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !connectionsPopup.classList.contains('hidden')) {
+                closeConnectionsPopupFunc();
+            }
+        });
     </script>
 
 </body>
