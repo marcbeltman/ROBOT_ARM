@@ -52,7 +52,13 @@ export function connectWebSocket(url) {
         if (typeof data === 'string') {
             try {
                 const obj = JSON.parse(data);
-                if (obj && obj.type) {
+
+                // If the server wraps the actual message inside a `payload` object,
+                // prefer broadcasting the inner payload type so clients receive
+                // a consistent shape like { type: 'error', message: '...' }
+                if (obj && obj.payload && obj.payload.type) {
+                    broadcast(obj.payload.type, obj.payload);
+                } else if (obj && obj.type) {
                     // Broadcast under the declared type (e.g. 'cameraStandStatus')
                     broadcast(obj.type, obj);
                 } else if (obj && obj.topic) {

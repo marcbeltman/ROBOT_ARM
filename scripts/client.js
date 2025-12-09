@@ -239,6 +239,45 @@ export function initRobotArmClient() {
         }
     });
 
+    // Listen for queue wait messages from the server
+    // Expected payload example: { type: 'queueWait', status: 'waiting', position: 2, queueLength: 5 }
+    onWebSocketEvent('queueWait', (payload) => {
+        try {
+            console.log('[Client] Queue wait:', payload);
+
+            // Ensure session is not active and disable all controls
+            isSessionActive = false;
+            setAllControlsEnabled(false);
+
+            // Update session status indicator to Waiting
+            const statusEl = document.getElementById('sessionStatus');
+            if (statusEl) {
+                statusEl.textContent = 'Waiting';
+                statusEl.classList.remove('status-active', 'status-occupied');
+                statusEl.classList.add('status-waiting');
+            }
+
+            // Optional: show position/queue info if element exists
+            const queueInfoEl = document.getElementById('queueInfo');
+            if (queueInfoEl) {
+                const pos = (typeof payload.position === 'number') ? payload.position : '-';
+                const len = (typeof payload.queueLength === 'number') ? payload.queueLength : '-';
+                queueInfoEl.textContent = `Pos: ${pos} / ${len}`;
+            }
+
+            // Provide immediate feedback to the user
+            if (payload && payload.status) {
+                flashStatus(payload.status.charAt(0).toUpperCase() + payload.status.slice(1));
+            } else if (payload && payload.position !== undefined) {
+                flashStatus(`Waiting (pos ${payload.position})`);
+            } else {
+                flashStatus('Waiting in queue');
+            }
+        } catch (err) {
+            console.error('[Client] Error handling queueWait message:', err);
+        }
+    });
+
     // // Listen for command acknowledgements from the server
     // // Expected payload example: { type: 'ack', message: 'Saved' }
     // onWebSocketEvent('ack', (payload) => {
