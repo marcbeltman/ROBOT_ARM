@@ -197,16 +197,22 @@ function sendHeartbeat() {
 }
 
 
-// Als de gebruiker het venster sluit, stuur snel een afmeld-bericht
+// Robuuste afmelding: stuur bij sluiten een disconnect via Beacon (valt terug op WS)
 window.addEventListener('beforeunload', function () {
-    // Check of we verbonden zijn
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        // Haal je ID op (die we eerder maakten)
-        let id = sessionStorage.getItem('mijn_sessie_id');
+    const id = sessionStorage.getItem('mijn_sessie_id');
+    if (!id) return;
 
-        ws.send(JSON.stringify({
-            type: "disconnect",
-            sessionID: id
-        }));
+    const payload = { type: 'disconnect', sessionID: id };
+    const data = JSON.stringify(payload);
+
+    // Gebruik Beacon API voor betrouwbare verzending tijdens unload
+    if (navigator.sendBeacon) {
+        const blob = new Blob([data], { type: 'application/json' });
+        navigator.sendBeacon('/disconnect', blob);
+    }
+
+    // Stuur ook via WebSocket als die nog open is (best effort, kan worden gedropt bij unload)
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(data);
     }
 });
