@@ -167,11 +167,11 @@ function startHeartbeat() {
     stopHeartbeat(); // Clear any existing interval
     console.log('[WebSocket] Starting heartbeat');
 
+    // Send one immediately on connect so the server sees us right away
+    sendHeartbeat();
+
     heartbeatInterval = setInterval(() => {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            sendCommand({ type: 'heartbeat', timestamp: Date.now(), sessionID: sessionID });
-            console.log('[WebSocket] Heartbeat sent');
-        }
+        sendHeartbeat();
     }, HEARTBEAT_INTERVAL);
 }
 
@@ -183,6 +183,16 @@ function stopHeartbeat() {
         clearInterval(heartbeatInterval);
         heartbeatInterval = null;
         console.log('[WebSocket] Heartbeat stopped');
+    }
+}
+
+/**
+ * Internal: send a single heartbeat if the socket is open
+ */
+function sendHeartbeat() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        sendCommand({ type: 'heartbeat', timestamp: Date.now(), sessionID: sessionID });
+        console.log('[WebSocket] Heartbeat sent');
     }
 }
 
