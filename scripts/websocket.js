@@ -205,13 +205,17 @@ window.addEventListener('beforeunload', function () {
     const payload = { type: 'disconnect', sessionID: id };
     const data = JSON.stringify(payload);
 
-    // Gebruik Beacon API voor betrouwbare verzending tijdens unload
+    // 1. HTTP BEACON (De betrouwbare methode bij sluiten)
     if (navigator.sendBeacon) {
-        const blob = new Blob([data], { type: 'application/json' });
-        navigator.sendBeacon('/disconnect', blob);
+        // BELANGRIJK: Gebruik 'text/plain' om CORS-blokkades te voorkomen
+        // Node-RED's JSON-node zet dit automatisch weer om naar een object.
+        const blob = new Blob([data], { type: 'text/plain' });
+
+        // BELANGRIJK: Gebruik de volledige URL naar jouw Node-RED instantie
+        navigator.sendBeacon('https://node-red.xyz/disconnect', blob);
     }
 
-    // Stuur ook via WebSocket als die nog open is (best effort, kan worden gedropt bij unload)
+    // 2. WEBSOCKET (Best effort, voor als de socket toevallig nog open is)
     if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(data);
     }
