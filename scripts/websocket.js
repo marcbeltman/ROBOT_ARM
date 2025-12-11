@@ -199,31 +199,47 @@ function sendHeartbeat() {
 
 // Robuuste afmelding: stuur bij sluiten een disconnect via Beacon (valt terug op WS)
 window.addEventListener('beforeunload', function () {
-    // 1. STOP DE HARTSLAG DIRECT!
-    if (heartbeatInterval) {
-        clearInterval(heartbeatInterval);
-        heartbeatInterval = null;
-    }
+    // === DEFINITIEVE BEACON AFMELDING (GitHub Pages Proof) ===
 
-    // 2. Verstuur Beacon...
+    // 1. Stop heartbeats
+    if (typeof stopHeartbeat === 'function') stopHeartbeat();
+
     const id = sessionStorage.getItem('mijn_sessie_id');
     if (!id) return;
 
-    const payload = { type: 'disconnect', sessionID: id };
-    const data = JSON.stringify(payload);
+    const payload = JSON.stringify({ type: 'disconnect', sessionID: id });
 
-    // 1. HTTP BEACON (De betrouwbare methode bij sluiten)
-    if (navigator.sendBeacon) {
-        // BELANGRIJK: Gebruik 'text/plain' om CORS-blokkades te voorkomen
-        // Node-RED's JSON-node zet dit automatisch weer om naar een object.
-        const blob = new Blob([data], { type: 'text/plain' });
+    // BELANGRIJK: text/plain voorkomt CORS problemen
+    const blob = new Blob([payload], { type: 'text/plain' });
 
-        // BELANGRIJK: Gebruik de volledige URL naar jouw Node-RED instantie
-        navigator.sendBeacon('https://node-red.xyz/disconnect', blob);
+    // 2. BEPAAL DE JUISTE URL
+    let targetUrl = 'https://node-red.xyz/disconnect'; // Hardcoded fallback voor de zekerheid
+
+    // Slimme logica: Kijk waar de WebSocket mee verbonden is
+    if (ws && ws.url) {
+        try {
+            // We gebruiken de browser URL-parser
+            const wsUrl = new URL(ws.url);
+            // wsUrl.host is bijv: "node-red.xyz" of "localhost:1880"
+
+            // Bepaal http of https (ws -> http, wss -> https)
+            const protocol = (wsUrl.protocol === 'wss:') ? 'https:' : 'http:';
+
+            // Bouw de URL: https://node-red.xyz/disconnect
+            targetUrl = `${protocol}//${wsUrl.host}/disconnect`;
+
+        } catch (e) {
+            console.warn("Kon URL niet afleiden van WebSocket, gebruik fallback.");
+        }
     }
 
-    // 2. WEBSOCKET (Best effort, voor als de socket toevallig nog open is)
+    // 3. Stuur Beacon naar de cloud
+    if (navigator.sendBeacon) {
+        navigator.sendBeacon(targetUrl, blob);
+    }
+
+    // 4. WebSocket Fallback
     if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(data);
+        ws.send(payload);
     }
 });
