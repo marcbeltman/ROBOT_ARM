@@ -21,7 +21,7 @@ const listeners = {};
 
 // Heartbeat configuration
 let heartbeatInterval = null;
-const HEARTBEAT_INTERVAL = 10000; // 10 seconds
+const HEARTBEAT_INTERVAL = 2000; // 2 seconds
 
 /**
  * Open a WebSocket connection with exponential backoff reconnect on close/error
