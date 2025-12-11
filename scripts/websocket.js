@@ -197,11 +197,10 @@ function sendHeartbeat() {
 }
 
 
-// Robuuste afmelding: stuur bij sluiten een disconnect via Beacon (valt terug op WS)
+// Robuuste afmelding: stuur bij sluiten een disconnect via fetch keepalive (valt terug op WS)
 window.addEventListener('beforeunload', function () {
-    // === DEFINITIEVE BEACON AFMELDING (GitHub Pages Proof) ===
+    // === DEFINITIEVE BEACON AFMELDING (Fetch Keepalive Versie) ===
 
-    // 1. Stop heartbeats
     if (typeof stopHeartbeat === 'function') stopHeartbeat();
 
     const id = sessionStorage.getItem('mijn_sessie_id');
@@ -209,36 +208,30 @@ window.addEventListener('beforeunload', function () {
 
     const payload = JSON.stringify({ type: 'disconnect', sessionID: id });
 
-    // BELANGRIJK: text/plain voorkomt CORS problemen
-    const blob = new Blob([payload], { type: 'text/plain' });
-
-    // 2. BEPAAL DE JUISTE URL
-    let targetUrl = 'https://node-red.xyz/disconnect'; // Hardcoded fallback voor de zekerheid
-
-    // Slimme logica: Kijk waar de WebSocket mee verbonden is
+    // We gebruiken weer de URL logica
+    let targetUrl = 'https://node-red.xyz/disconnect';
     if (ws && ws.url) {
         try {
-            // We gebruiken de browser URL-parser
             const wsUrl = new URL(ws.url);
-            // wsUrl.host is bijv: "node-red.xyz" of "localhost:1880"
-
-            // Bepaal http of https (ws -> http, wss -> https)
             const protocol = (wsUrl.protocol === 'wss:') ? 'https:' : 'http:';
-
-            // Bouw de URL: https://node-red.xyz/disconnect
             targetUrl = `${protocol}//${wsUrl.host}/disconnect`;
-
         } catch (e) {
-            console.warn("Kon URL niet afleiden van WebSocket, gebruik fallback.");
+            // Laat fallback staan
         }
     }
 
-    // 3. Stuur Beacon naar de cloud
-    if (navigator.sendBeacon) {
-        navigator.sendBeacon(targetUrl, blob);
-    }
+    // NIEUWE METHODE: fetch met keepalive
+    // Dit werkt betrouwbaarder dan sendBeacon in moderne browsers
+    fetch(targetUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain' // Voorkomt CORS preflight
+        },
+        body: payload,
+        keepalive: true // <--- DIT IS DE TRUC: Blijft leven na sluiten tab
+    });
 
-    // 4. WebSocket Fallback
+    // Fallback WebSocket (voor de zekerheid laten staan)
     if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(payload);
     }
