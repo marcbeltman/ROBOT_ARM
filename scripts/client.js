@@ -389,7 +389,6 @@ function updateUserList(payload) {
                     <span class="user-label">Last seen:</span>
                     <span class="user-value">${user.lastSeen || '-'}</span>
                 </div>
-                ${user.uuid ? `<div class="user-uuid">${user.uuid}</div>` : ''}
             </div>
         </div>`;
     });
