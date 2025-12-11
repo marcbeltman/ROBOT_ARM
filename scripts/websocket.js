@@ -199,6 +199,13 @@ function sendHeartbeat() {
 
 // Robuuste afmelding: stuur bij sluiten een disconnect via Beacon (valt terug op WS)
 window.addEventListener('beforeunload', function () {
+    // 1. STOP DE HARTSLAG DIRECT!
+    if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+    }
+
+    // 2. Verstuur Beacon...
     const id = sessionStorage.getItem('mijn_sessie_id');
     if (!id) return;
 
