@@ -72,6 +72,23 @@ export function initChat() {
         }
     });
 
+    // Listen for chat history messages (when a user joins, send last messages)
+    onWebSocketEvent('chatHistory', (payload) => {
+        try {
+            if (payload && payload.messages && Array.isArray(payload.messages)) {
+                // Display each history message
+                payload.messages.forEach(msg => {
+                    displayMessage(msg.username, msg.message, msg.timeStr);
+                });
+                
+                // Add a separator
+                displaySystemMessage("--- Laatste berichten hierboven ---");
+            }
+        } catch (err) {
+            console.error('[Chat] Error handling chat history:', err);
+        }
+    });
+
     // Handle WebSocket connection events
     onWebSocketEvent('open', () => {
         console.log('[Chat] WebSocket connected');
