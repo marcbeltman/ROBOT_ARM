@@ -7,6 +7,7 @@ import { sendCommand, addEventListener as onWebSocketEvent, sessionID } from './
 
 let currentUsername = null;
 let isChatActive = false;
+let hasJoinedChat = false; // Flag to prevent duplicate join messages
 
 /**
  * Initialize chat functionality
@@ -31,7 +32,7 @@ export function initChat() {
 
     // Set up message input handlers
     const messageInput = document.getElementById('chat-message');
-    const sendButton = document.querySelector('#chat-input-area button');
+    const sendButton = document.getElementById('send-chat-btn');
     
     if (messageInput && sendButton) {
         messageInput.addEventListener('keypress', (e) => {
@@ -43,11 +44,17 @@ export function initChat() {
         sendButton.addEventListener('click', sendChatMessage);
     }
 
+    // Set up leave chat button
+    const leaveButton = document.getElementById('leave-chat-btn');
+    if (leaveButton) {
+        leaveButton.addEventListener('click', leaveChat);
+    }
+
     // Listen for incoming chat messages from WebSocket
     onWebSocketEvent('chatMessage', (payload) => {
         try {
             if (payload && payload.message && payload.username) {
-                displayMessage(payload.username, payload.message, payload.timestamp, payload.username === currentUsername);
+                displayMessage(payload.username, payload.message, payload.timestamp || payload.timeStr, payload.username === currentUsername);
             }
         } catch (err) {
             console.error('[Chat] Error handling chat message:', err);
@@ -57,8 +64,8 @@ export function initChat() {
     // Listen for chat system messages (user joined, left, etc.)
     onWebSocketEvent('chatSystem', (payload) => {
         try {
-            if (payload && payload.message) {
-                displaySystemMessage(payload.message);
+            if (payload && (payload.message || payload.displayMessage)) {
+                displaySystemMessage(payload.message || payload.displayMessage);
             }
         } catch (err) {
             console.error('[Chat] Error handling system message:', err);
@@ -68,13 +75,14 @@ export function initChat() {
     // Handle WebSocket connection events
     onWebSocketEvent('open', () => {
         console.log('[Chat] WebSocket connected');
-        if (isChatActive && currentUsername) {
-            // Rejoin chat if already logged in
+        if (isChatActive && currentUsername && !hasJoinedChat) {
+            // Join chat if not already joined
             sendCommand({
                 type: 'chatJoin',
                 username: currentUsername,
                 sessionID: sessionID
             });
+            hasJoinedChat = true;
         }
     });
 
@@ -87,6 +95,18 @@ export function initChat() {
 
     console.log('[Chat] Chat initialized');
 }
+
+// Handle page unload to notify others when user leaves
+window.addEventListener('beforeunload', () => {
+    if (isChatActive && currentUsername) {
+        // Send leave message synchronously if possible
+        sendCommand({
+            type: 'chatLeave',
+            username: currentUsername,
+            sessionID: sessionID
+        });
+    }
+});
 
 /**
  * Join the chat with a username
@@ -129,6 +149,7 @@ export function joinChat() {
         username: username,
         sessionID: sessionID
     });
+    hasJoinedChat = true;
 
     console.log(`[Chat] Joined chat as: ${username}`);
 }
@@ -183,13 +204,13 @@ function displayMessage(username, message, timestamp, isOwnMessage) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `chat-message ${isOwnMessage ? 'own-message' : 'other-message'}`;
 
-    const time = timestamp ? new Date(timestamp).toLocaleTimeString('nl-NL', { 
+    const time = typeof timestamp === 'string' ? timestamp : (timestamp ? new Date(timestamp).toLocaleTimeString('nl-NL', { 
         hour: '2-digit', 
         minute: '2-digit' 
     }) : new Date().toLocaleTimeString('nl-NL', { 
         hour: '2-digit', 
         minute: '2-digit' 
-    });
+    }));
 
     messageDiv.innerHTML = `
         <div class="message-author">${escapeHtml(username)}</div>
@@ -250,6 +271,7 @@ export function leaveChat() {
 
     currentUsername = null;
     isChatActive = false;
+    hasJoinedChat = false;
 
     // Show login screen and hide chat interface
     const loginScreen = document.getElementById('chat-login');

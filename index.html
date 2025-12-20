@@ -150,16 +150,19 @@
                     <h3>Deelnemen aan chat</h3>
                     <p>Voer je naam in om te beginnen:</p>
                     <input type="text" id="chat-username" placeholder="Jouw naam..." maxlength="20">
-                    <button class="btn primary" onclick="joinChat()">Start Chat</button>
+                    <button class="btn primary">Start Chat</button>
                 </div>
 
                 <!-- Scherm 2: De Chat Interface (Standaard verborgen) -->
                 <div id="chat-interface" style="display: none;">
-                    <div id="chat-header">Ingelogd als: <span id="display-name"></span></div>
+                    <div id="chat-header">
+                        Ingelogd als: <span id="display-name"></span>
+                        <button id="leave-chat-btn" class="btn secondary" style="float: right; margin-top: -5px;">Verlaat Chat</button>
+                    </div>
                     <div id="chat-box"></div>
                     <div id="chat-input-area">
                         <input type="text" id="chat-message" placeholder="Typ een bericht...">
-                        <button class="btn primary" onclick="sendChatMessage()">Verstuur</button>
+                        <button id="send-chat-btn" class="btn primary">Verstuur</button>
                     </div>
                 </div>
             </div>
@@ -170,7 +173,7 @@
         import { connectWebSocket } from "./scripts/websocket.js";
         import { initVideoHandler } from "./scripts/video.js";
         import { initRobotArmClient } from "./scripts/client.js";
-        import { initChat, joinChat, sendChatMessage } from "./scripts/chat.js";
+        import { initChat, joinChat, sendChatMessage, leaveChat } from "./scripts/chat.js";
 
         // Initialize video frame handler
         initVideoHandler();
@@ -184,6 +187,7 @@
         // Make chat functions globally available for onclick handlers
         window.joinChat = joinChat;
         window.sendChatMessage = sendChatMessage;
+        window.leaveChat = leaveChat;
 
         // Connect WebSocket
         connectWebSocket("wss://node-red.xyz/ws/ArmControlSocket");

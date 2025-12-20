@@ -55,6 +55,9 @@ export function connectWebSocket(url) {
                 // Prefer nested payload.type for Node-RED style messages
                 if (obj && obj.payload && typeof obj.payload === 'object' && obj.payload.type) {
                     broadcast(obj.payload.type, obj.payload);
+                } else if (obj && obj.payload && typeof obj.payload === 'object' && obj.payload.system === true) {
+                    // Handle system messages (join/leave notifications)
+                    broadcast('chatSystem', obj.payload);
                 } else if (obj && obj.type) {
                     // Broadcast under the declared type (e.g. 'cameraStandStatus')
                     broadcast(obj.type, obj);
