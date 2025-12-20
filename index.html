@@ -136,18 +136,54 @@
                     </div>
                 </div>
             </div>
+        </section>
+
+        <!-- Chat Section -->
+        <section class="section chat-section" aria-labelledby="chatHeading">
+            <div class="section-header">
+                <h2 id="chatHeading">Chat</h2>
+            </div>
+
+            <div id="chat-widget" class="chat-container">
+                <!-- Scherm 1: De Verplichte Naam Invoer -->
+                <div id="chat-login">
+                    <h3>Deelnemen aan chat</h3>
+                    <p>Voer je naam in om te beginnen:</p>
+                    <input type="text" id="chat-username" placeholder="Jouw naam..." maxlength="20">
+                    <button class="btn primary" onclick="joinChat()">Start Chat</button>
+                </div>
+
+                <!-- Scherm 2: De Chat Interface (Standaard verborgen) -->
+                <div id="chat-interface" style="display: none;">
+                    <div id="chat-header">Ingelogd als: <span id="display-name"></span></div>
+                    <div id="chat-box"></div>
+                    <div id="chat-input-area">
+                        <input type="text" id="chat-message" placeholder="Typ een bericht...">
+                        <button class="btn primary" onclick="sendChatMessage()">Verstuur</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script type="module">
         import { connectWebSocket } from "./scripts/websocket.js";
         import { initVideoHandler } from "./scripts/video.js";
         import { initRobotArmClient } from "./scripts/client.js";
+        import { initChat, joinChat, sendChatMessage } from "./scripts/chat.js";
 
         // Initialize video frame handler
         initVideoHandler();
 
         // Initialize robot arm client (sliders, buttons)
         initRobotArmClient();
+
+        // Initialize chat functionality
+        initChat();
+        
+        // Make chat functions globally available for onclick handlers
+        window.joinChat = joinChat;
+        window.sendChatMessage = sendChatMessage;
 
         // Connect WebSocket
         connectWebSocket("wss://node-red.xyz/ws/ArmControlSocket");
