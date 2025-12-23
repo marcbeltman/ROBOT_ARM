@@ -8,6 +8,7 @@ import { sendCommand, addEventListener as onWebSocketEvent, sessionID } from './
 // Global state tracking
 let isSessionActive = false;  // Track if this session is the active session
 let isCameraStandOnline = false;  // Track camera stand online status
+let lastUserListJson = '';  // Geheugen van de vorige gebruikerslijst (voor change detection)
 
 /**
  * Initialize robot arm control handlers
@@ -66,8 +67,11 @@ export function initRobotArmClient() {
             const servoName = nameMap[pair.id] || pair.id;
 
             sendCommand({
-                servo: servoName,
-                angle: parseInt(value, 10)
+                "type": "robotControl", 
+                "command": "servo",
+                "servo": servoName,
+                "angle": parseInt(value, 10),
+                "sessionID": sessionID
             });
             console.debug(`[Client] Servo command sent: ${pair.id} (${servoName}) → ${value}`);
         }
@@ -85,14 +89,24 @@ export function initRobotArmClient() {
 
     if (openBtn) {
         openBtn.addEventListener('click', () => {
-            sendCommand({ type: 'gripper', action: 'open' });
+            sendCommand({
+                "type": "robotControl",
+                "command": "gripper",
+                "action": "open",
+                "sessionID": sessionID
+            });
             console.debug('[Client] Gripper: open');
         });
     }
 
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
-            sendCommand({ type: 'gripper', action: 'close' });
+            sendCommand({
+                "type": "robotControl",
+                "command": "gripper",
+                "action": "close",
+                "sessionID": sessionID
+            });
             console.debug('[Client] Gripper: close');
         });
     }
@@ -319,7 +333,7 @@ export function initRobotArmClient() {
     });
 
     // Listen for user list updates
-    // Payload: { type: 'userListUpdate', totalUsers: 4, users: [...] }
+    // Payload: { type: 'userListUpdate', totalViewers: 3, totalInQueue: 2, users: [...] }
     onWebSocketEvent('userListUpdate', (payload) => {
         try {
             updateUserList(payload);
@@ -331,6 +345,7 @@ export function initRobotArmClient() {
 
 /**
  * Update the user list display in the connections popup
+ * Only re-renders if the data has actually changed
  */
 function updateUserList(payload) {
     const container = document.getElementById('userListContainer');
@@ -344,8 +359,19 @@ function updateUserList(payload) {
         return;
     }
 
+    // Maak een vingerafdruk van de nieuwe data om te vergelijken
+    const currentListJson = JSON.stringify(payload.users);
+    if (currentListJson === lastUserListJson) {
+        // Data is exact hetzelfde (bijv. alleen een heartbeat), niets doen
+        console.debug('[Client] User list unchanged, skipping render');
+        return;
+    }
+    lastUserListJson = currentListJson;
+    console.debug('[Client] User list changed, updating HTML...');
+
     const users = payload.users;
-    const totalUsers = payload.totalUsers || users.length;
+    const totalViewers = payload.totalViewers || users.length;
+    const totalInQueue = payload.totalInQueue || 0;
 
     if (users.length === 0) {
         container.innerHTML = '<p class="user-list-empty">No active users.</p>';
@@ -354,14 +380,14 @@ function updateUserList(payload) {
 
     // Create user list HTML
     let html = `<div class="user-list-header">
-        <p><strong>Total users:</strong> ${totalUsers}</p>
+        <p><strong>Total viewers:</strong> ${totalViewers} | <strong>In queue:</strong> ${totalInQueue}</p>
     </div>
     <div class="user-list">`;
 
     users.forEach((user) => {
-        const userNumber = String(user.position || 0).padStart(2, '0');
-        const userName = `user-${userNumber}`;
+        const userName = user.username || `user-${user.position || 0}`;
         const isOwner = user.isOwner ? '<span class="user-owner-badge">Owner</span>' : '';
+        const roleBadge = user.role ? `<span class="user-role-badge">${user.role}</span>` : '';
         const deviceType = user.mobile ? 'Mobile' : 'Desktop';
         const deviceIcon = user.mobile ? '📱' : '💻';
         const location = user.city && user.country ? `${user.city}, ${user.country}` : (user.city || user.country || 'Unknown');
@@ -370,7 +396,7 @@ function updateUserList(payload) {
         <div class="user-item ${user.isOwner ? 'user-owner' : ''}">
             <div class="user-item-header">
                 <span class="user-name">${userName}</span>
-                ${isOwner}
+                ${isOwner} ${roleBadge}
             </div>
             <div class="user-item-details">
                 <div class="user-detail-row">
@@ -384,6 +410,10 @@ function updateUserList(payload) {
                 <div class="user-detail-row">
                     <span class="user-label">Location:</span>
                     <span class="user-value">${location}</span>
+                </div>
+                <div class="user-detail-row">
+                    <span class="user-label">Browser:</span>
+                    <span class="user-value">${user.browser || 'Unknown'}</span>
                 </div>
                 <div class="user-detail-row">
                     <span class="user-label">Last seen:</span>
@@ -429,8 +459,11 @@ export function moveServo(servoId, value) {
     const servoName = nameMap[servoId] || servoId;
 
     sendCommand({
-        servo: servoName,
-        angle: parseInt(value, 10)
+        "type": "robotControl", 
+        "command": "servo",
+        "servo": servoName,
+        "angle": parseInt(value, 10),
+        "sessionID": sessionID
     });
 }
 
@@ -444,8 +477,10 @@ export function controlGripper(action) {
     }
 
     sendCommand({
-        type: 'gripper',
-        action: action
+        "type": "robotControl",
+        "command": "gripper",
+        "action": action,
+        "sessionID": sessionID
     });
     flashStatus(action.charAt(0).toUpperCase() + action.slice(1));
 }

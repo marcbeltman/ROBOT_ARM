@@ -18,6 +18,7 @@ let ws = null;
 let reconnectDelay = 1000;
 const MAX_RECONNECT = 30000;
 const listeners = {};
+let isDisconnecting = false;
 
 // Heartbeat configuration
 let heartbeatInterval = null;
@@ -190,6 +191,17 @@ function stopHeartbeat() {
 }
 
 /**
+ * Handle disconnect to prevent duplicate messages
+ */
+function handleDisconnect() {
+    if (isDisconnecting) return;
+    isDisconnecting = true;
+    console.log('[WebSocket] Sending disconnect');
+    stopHeartbeat();
+    sendCommand({ type: 'disconnect', sessionID: sessionID });
+}
+
+/**
  * Internal: send a single heartbeat if the socket is open
  */
 function sendHeartbeat() {
@@ -239,3 +251,19 @@ window.addEventListener('beforeunload', function () {
         ws.send(payload);
     }
 });
+
+// Pauzeer heartbeat wanneer de pagina niet zichtbaar is, hervat wanneer zichtbaar
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        handleDisconnect();
+    } else if (document.visibilityState === 'visible') {
+        isDisconnecting = false; // Reset als de gebruiker terugkomt
+        console.log('[WebSocket] Page visible, starting heartbeat');
+        if (isConnected()) {
+            startHeartbeat();
+        }
+    }
+});
+
+// Verstuur disconnect bericht bij pagehide (bijv. bij navigeren weg of sluiten tab)
+window.addEventListener('pagehide', handleDisconnect);

@@ -1,5 +1,6 @@
 # Ignore local backups and legacy folders
 old/
+claude/
 
 # Node / editor / OS common ignores (optional)
 node_modules/
