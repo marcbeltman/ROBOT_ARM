@@ -826,6 +826,47 @@ input[type=range]::-moz-range-thumb {
         font-size: 16px;
     }
 
+    /* Mobile: Participate section */
+    #chat-login {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        margin-top: 20px !important;
+    }
+
+    #chat-login span {
+        width: 100%;
+    }
+
+    #chat-login input[type="text"] {
+        width: 100% !important;
+        height: 36px !important;
+        font-size: 14px !important;
+    }
+
+    #chat-login .btn {
+        width: 100% !important;
+        height: 36px !important;
+        font-size: 14px !important;
+        justify-content: center;
+    }
+
+    /* Mobile: desc text margin */
+    .desc {
+        margin-top: 10px !important;
+    }
+
+    /* Mobile: status sections */
+    .camera-status,
+    .robot-arm-status {
+        font-size: 13px;
+    }
+
+    /* Mobile: Command Status row */
+    .command-status-row {
+        flex-wrap: wrap;
+    }
+
     .connections-popup-body {
         padding: 20px;
     }
