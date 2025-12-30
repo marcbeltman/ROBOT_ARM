@@ -12,8 +12,10 @@
 
 <body>
     <div class="panel" role="main">
-        <h1>Remote Arm Control <span id="sessionStatus" class="session-status-inline status-occupied">Occupied</span>
-        </h1>
+        <h1>Remote Arm Control</h1>
+        <div class="session-status-container" style="text-align: center; margin-top: -45px; margin-bottom: 6px;">
+            <span id="sessionStatus" class="session-status-inline status-occupied">Occupied</span>
+        </div>
 
         <!-- Camera Section -->
         <section class="section camera-section" aria-labelledby="cameraHeading">
@@ -105,17 +107,17 @@
                 <div class="control-row">
                     <div class="label">Arm</div>
                     <div class="slider-wrap">
-                        <input id="baseArm" type="range" min="0" max="180" value="90">
+                        <input id="baseArm" type="range" min="45" max="180" value="100">
                     </div>
-                    <div class="value-box" id="valBaseArm">90</div>
+                    <div class="value-box" id="valBaseArm">100</div>
                 </div>
 
                 <div class="control-row">
                     <div class="label">Wrist</div>
                     <div class="slider-wrap">
-                        <input id="midArm" type="range" min="0" max="180" value="90">
+                        <input id="midArm" type="range" min="0" max="115" value="100">
                     </div>
-                    <div class="value-box" id="valMidArm">90</div>
+                    <div class="value-box" id="valMidArm">100</div>
                 </div>
 
                 <div class="control-row" style="margin-top:8px">

@@ -294,6 +294,10 @@ input[type=range]::-moz-range-thumb {
         margin-bottom: 10px;
     }
 
+    .session-status-container {
+        grid-column: 1/-1;
+    }
+
     .camera-section {
         grid-column: 1;
         padding: 0;
