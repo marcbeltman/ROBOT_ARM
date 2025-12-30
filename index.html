@@ -59,7 +59,13 @@
         <!-- Robot Arm Section -->
         <section class="section arm-section" aria-labelledby="armHeading">
             <div class="section-header">
-                <h2 id="armHeading">Robot Arm</h2>
+                <h2 id="armHeading"></h2>
+            </div>
+
+            <!-- Robot arm textual status (always visible) -->
+            <div class="robot-arm-status">
+                <strong>Robot Arm:</strong>
+                <span id="robotArmStatus" class="status-offline">offline</span>
             </div>
 
             <div style="margin-bottom: 4px; width: 100%; overflow: visible;">
@@ -97,7 +103,7 @@
 
             <div class="control">
                 <div class="control-row">
-                    <div class="label">Base Spin</div>
+                    <div class="label">Base</div>
                     <div class="slider-wrap">
                         <input id="baseSpin" type="range" min="0" max="180" value="90">
                     </div>
@@ -105,7 +111,7 @@
                 </div>
 
                 <div class="control-row">
-                    <div class="label">Base Arm</div>
+                    <div class="label">Arm</div>
                     <div class="slider-wrap">
                         <input id="baseArm" type="range" min="0" max="180" value="90">
                     </div>
@@ -113,23 +119,15 @@
                 </div>
 
                 <div class="control-row">
-                    <div class="label">Mid Arm</div>
+                    <div class="label">Wrist</div>
                     <div class="slider-wrap">
                         <input id="midArm" type="range" min="0" max="180" value="90">
                     </div>
                     <div class="value-box" id="valMidArm">90</div>
                 </div>
 
-                <div class="control-row">
-                    <div class="label">Gripper Arm</div>
-                    <div class="slider-wrap">
-                        <input id="gripper" type="range" min="0" max="180" value="90">
-                    </div>
-                    <div class="value-box" id="valGripper">90</div>
-                </div>
-
-                <div style="margin-top:8px">
-                    <div class="label" style="margin-bottom:8px;color:var(--accent);font-weight:700">Finger</div>
+                <div class="control-row" style="margin-top:8px">
+                    <div class="label" style="color:var(--accent);font-weight:700">Gripper</div>
                     <div class="finger-actions">
                         <button class="btn" id="openBtn">Open</button>
                         <button class="btn" id="closeBtn">Close</button>

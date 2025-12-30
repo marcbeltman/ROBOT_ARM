@@ -254,7 +254,7 @@ input[type=range]::-moz-range-thumb {
 .finger-actions {
     display: flex;
     gap: 12px;
-    margin-top: 6px
+    flex: 1;
 }
 
 .btn {
@@ -526,6 +526,28 @@ input[type=range]::-moz-range-thumb {
 }
 
 .camera-status .status-unknown {
+    color: var(--muted);
+    font-weight: 600
+}
+
+/* Robot arm status styles (persistent textual status) */
+.robot-arm-status {
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    color: var(--muted);
+}
+
+.robot-arm-status .status-online {
+    color: #0a8a0a;
+    font-weight: 700
+}
+
+.robot-arm-status .status-offline {
+    color: #c62828;
+    font-weight: 700
+}
+
+.robot-arm-status .status-unknown {
     color: var(--muted);
     font-weight: 600
 }

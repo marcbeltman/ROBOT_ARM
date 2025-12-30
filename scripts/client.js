@@ -8,6 +8,7 @@ import { sendCommand, addEventListener as onWebSocketEvent, sessionID } from './
 // Global state tracking
 let isSessionActive = false;  // Track if this session is the active session
 let isCameraStandOnline = false;  // Track camera stand online status
+let isRobotArmOnline = false;  // Track robot arm online status
 let lastUserListJson = '';  // Geheugen van de vorige gebruikerslijst (voor change detection)
 
 /**
@@ -33,7 +34,6 @@ export function initRobotArmClient() {
         { id: 'baseSpin', val: 'valBaseSpin' },
         { id: 'baseArm', val: 'valBaseArm' },
         { id: 'midArm', val: 'valMidArm' },
-        { id: 'gripper', val: 'valGripper' },
         { id: 'cameraPan', val: 'valCameraPan' },
         { id: 'cameraTilt', val: 'valCameraTilt' }
     ];
@@ -61,6 +61,9 @@ export function initRobotArmClient() {
 
             // Map internal IDs to protocol names where needed
             const nameMap = {
+                'baseSpin': 'base',
+                'baseArm': 'arm',
+                'midArm': 'wrist',
                 'cameraPan': 'pan',
                 'cameraTilt': 'tilt'
             };
@@ -91,11 +94,12 @@ export function initRobotArmClient() {
         openBtn.addEventListener('click', () => {
             sendCommand({
                 "type": "robotControl",
-                "command": "gripper",
-                "action": "open",
+                "command": "servo",
+                "servo": "gripper",
+                "angle": 75,
                 "sessionID": sessionID
             });
-            console.debug('[Client] Gripper: open');
+            console.debug('[Client] Gripper: open (servo 75)');
         });
     }
 
@@ -103,11 +107,12 @@ export function initRobotArmClient() {
         closeBtn.addEventListener('click', () => {
             sendCommand({
                 "type": "robotControl",
-                "command": "gripper",
-                "action": "close",
+                "command": "servo",
+                "servo": "gripper",
+                "angle": 125,
                 "sessionID": sessionID
             });
-            console.debug('[Client] Gripper: close');
+            console.debug('[Client] Gripper: close (servo 125)');
         });
     }
 
@@ -117,19 +122,9 @@ export function initRobotArmClient() {
 
     // Helper: enable/disable ALL controls based on session state
     function setAllControlsEnabled(enabled) {
-        // Robot arm sliders - always follow session state
-        const robotSliders = ['baseSpin', 'baseArm', 'midArm', 'gripper'];
-        robotSliders.forEach(id => {
-            const input = document.getElementById(id);
-            const valueBox = document.getElementById(`val${id.charAt(0).toUpperCase() + id.slice(1)}`);
-            if (input) {
-                input.disabled = !enabled;
-                if (!enabled) input.classList.add('disabled'); else input.classList.remove('disabled');
-            }
-            if (valueBox) {
-                valueBox.classList.toggle('disabled', !enabled);
-            }
-        });
+        // Robot arm sliders - only enabled if session is active AND robot arm is online
+        const robotArmEnabled = enabled && isRobotArmOnline;
+        setRobotArmControlsEnabled(robotArmEnabled);
 
         // Camera sliders - only enabled if session is active AND camera stand is online
         const cameraEnabled = enabled && isCameraStandOnline;
@@ -169,6 +164,67 @@ export function initRobotArmClient() {
             statusEl.textContent = enabled ? 'online' : 'offline';
         }
     }
+
+    // Helper: enable/disable robot arm controls
+    function setRobotArmControlsEnabled(enabled) {
+        const robotSliders = ['baseSpin', 'baseArm', 'midArm'];
+        const statusEl = document.getElementById('robotArmStatus');
+
+        robotSliders.forEach(id => {
+            const input = document.getElementById(id);
+            const valueBox = document.getElementById(`val${id.charAt(0).toUpperCase() + id.slice(1)}`);
+            if (input) {
+                input.disabled = !enabled;
+                if (!enabled) input.classList.add('disabled'); else input.classList.remove('disabled');
+            }
+            if (valueBox) {
+                valueBox.classList.toggle('disabled', !enabled);
+            }
+        });
+        console.debug('[Client] Robot arm controls', enabled ? 'enabled' : 'disabled');
+
+        // update persistent status element class if present
+        if (statusEl) {
+            statusEl.classList.remove('status-online', 'status-offline', 'status-unknown');
+            statusEl.classList.add(isRobotArmOnline ? 'status-online' : 'status-offline');
+            statusEl.textContent = isRobotArmOnline ? 'online' : 'offline';
+        }
+    }
+
+    // Default: robot arm is considered offline until a status message arrives
+    setRobotArmControlsEnabled(false);
+
+    // Listen for robot arm status messages from the server
+    // Expected payload example: { type: 'robotArmStatus', online: true }
+    onWebSocketEvent('robotArmStatus', (payload) => {
+        try {
+            if (payload && typeof payload.online === 'boolean') {
+                const online = !!payload.online;
+                isRobotArmOnline = online;  // Update global state
+
+                // Only enable/disable robot arm controls if session is active
+                if (isSessionActive) {
+                    setRobotArmControlsEnabled(online);
+                } else {
+                    // Still update the status display even if not in session
+                    const statusEl = document.getElementById('robotArmStatus');
+                    if (statusEl) {
+                        statusEl.classList.remove('status-online', 'status-offline', 'status-unknown');
+                        statusEl.classList.add(online ? 'status-online' : 'status-offline');
+                        statusEl.textContent = online ? 'online' : 'offline';
+                    }
+                }
+            } else {
+                // If payload not as expected, show generic status and disable controls
+                isRobotArmOnline = false;
+                if (isSessionActive) {
+                    setRobotArmControlsEnabled(false);
+                }
+            }
+        } catch (err) {
+            console.error('[Client] Error handling robotArmStatus:', err);
+        }
+    });
 
     // Default: camera stand is considered offline until a status message arrives
     setCameraControlsEnabled(false);
