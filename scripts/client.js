@@ -120,6 +120,28 @@ export function initRobotArmClient() {
     // Start with all controls disabled until we are confirmed owner
     setAllControlsEnabled(false);
 
+    // Listen for WebSocket connection open - update status to "Standby" if connected
+    onWebSocketEvent('open', () => {
+        const statusEl = document.getElementById('sessionStatus');
+        if (statusEl) {
+            statusEl.textContent = 'Standby';
+            statusEl.classList.remove('status-connecting', 'status-occupied');
+            statusEl.classList.add('status-ready');
+        }
+        console.log('[Client] WebSocket connected, status set to Standby');
+    });
+
+    // Listen for WebSocket connection close - update status to "Disconnected"
+    onWebSocketEvent('close', () => {
+        const statusEl = document.getElementById('sessionStatus');
+        if (statusEl) {
+            statusEl.textContent = 'Disconnected';
+            statusEl.classList.remove('status-ready', 'status-active', 'status-occupied');
+            statusEl.classList.add('status-connecting');
+        }
+        console.log('[Client] WebSocket disconnected');
+    });
+
     // Helper: enable/disable ALL controls based on session state
     function setAllControlsEnabled(enabled) {
         // Robot arm sliders - only enabled if session is active AND robot arm is online
@@ -313,11 +335,11 @@ export function initRobotArmClient() {
             isSessionActive = true;
             setAllControlsEnabled(true);
 
-            // Update session status indicator to Active
+            // Update session status indicator to Owner
             const statusEl = document.getElementById('sessionStatus');
             if (statusEl) {
-                statusEl.textContent = 'Active';
-                statusEl.classList.remove('status-occupied');
+                statusEl.textContent = 'Owner';
+                statusEl.classList.remove('status-occupied', 'status-ready', 'status-connecting');
                 statusEl.classList.add('status-active');
             }
         } catch (err) {

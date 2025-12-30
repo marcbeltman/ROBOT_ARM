@@ -18,7 +18,7 @@ export function initChat() {
 
     // Set up login form handlers
     const usernameInput = document.getElementById('chat-username');
-    const loginButton = document.getElementById('chat-start-btn');
+    const loginButton = document.getElementById('chat-login-btn');
     
     if (usernameInput && loginButton) {
         usernameInput.addEventListener('keypress', (e) => {
@@ -26,7 +26,6 @@ export function initChat() {
                 joinChat();
             }
         });
-        
         loginButton.addEventListener('click', joinChat);
     }
 
@@ -145,12 +144,17 @@ export function joinChat() {
     currentUsername = username;
     isChatActive = true;
 
-    // Hide login screen and show chat interface
-    const loginScreen = document.getElementById('chat-login');
+
+    // Hide only the label, input, and GO button, not the connections button
+    const chatLabel = document.getElementById('chat-label');
+    const chatInput = document.getElementById('chat-username');
+    const chatLoginBtn = document.getElementById('chat-login-btn');
     const chatInterface = document.getElementById('chat-interface');
     const displayName = document.getElementById('display-name');
 
-    if (loginScreen) loginScreen.style.display = 'none';
+    if (chatLabel) chatLabel.style.visibility = 'hidden';
+    if (chatInput) chatInput.style.visibility = 'hidden';
+    if (chatLoginBtn) chatLoginBtn.style.visibility = 'hidden';
     if (chatInterface) chatInterface.style.display = 'flex';
     if (displayName) displayName.textContent = username;
 
@@ -278,6 +282,13 @@ function escapeHtml(text) {
  * Leave the chat
  */
 export function leaveChat() {
+        // Show Participate label, input, and GO button again
+        const chatLabel = document.getElementById('chat-label');
+        const chatInput = document.getElementById('chat-username');
+        const chatLoginBtn = document.getElementById('chat-login-btn');
+        if (chatLabel) chatLabel.style.visibility = 'visible';
+        if (chatInput) chatInput.style.visibility = 'visible';
+        if (chatLoginBtn) chatLoginBtn.style.visibility = 'visible';
     if (isChatActive && currentUsername) {
         sendCommand({
             type: 'chatLeave',
