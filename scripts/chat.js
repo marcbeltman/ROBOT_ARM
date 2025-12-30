@@ -18,7 +18,7 @@ export function initChat() {
 
     // Set up login form handlers
     const usernameInput = document.getElementById('chat-username');
-    const loginButton = document.querySelector('#chat-login button');
+    const loginButton = document.getElementById('chat-start-btn');
     
     if (usernameInput && loginButton) {
         usernameInput.addEventListener('keypress', (e) => {

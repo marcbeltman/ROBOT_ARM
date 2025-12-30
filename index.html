@@ -28,14 +28,48 @@
                 <img id="videoFrame" class="media-frame hidden" alt="video frame" aria-hidden="true">
             </div>
 
+            <!-- Inject test frame removed -->
+        </section>
+
+        <!-- Robot Arm Section -->
+        <section class="section arm-section" aria-labelledby="armHeading">
+            <div class="section-header">
+                <h2 id="armHeading"></h2>
+            </div>
+
+            <div class="desc" style="margin-top: 40px;">If the robot arm and camera stand are online, adjust the sliders to control them. Changes will be sent automatically to the robot arm and camera stand.</div>
+
+            <!-- Connections Info Popup -->
+            <div id="connectionsPopup" class="connections-popup hidden">
+                <div class="connections-popup-content">
+                    <div class="connections-popup-header">
+                        <h3>Connections</h3>
+                        <button id="closeConnectionsPopup" class="connections-popup-close" aria-label="Sluiten">&times;</button>
+                    </div>
+                    <div class="connections-popup-body">
+                        <div id="userListContainer">
+                            <p class="user-list-loading">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px; padding: 0;">
+                <span style="font-weight: 600; color: #000;">Command Status:</span>
+                <div class="status" aria-live="polite"
+                    style="display: inline-flex; align-items: center; gap: 6px; margin: 0;">
+                    <span></span>
+                </div>
+            </div>
+
             <!-- Camera stand textual status (always visible) -->
             <div class="camera-status">
                 <strong>Camera-stand:</strong>
                 <span id="cameraStandStatus" class="status-offline">offline</span>
             </div>
 
-            <!-- Camera pan/tilt controls (appear directly under the image area) -->
-            <div class="control" id="camera-controls" style="margin-top:12px; margin-bottom:8px">
+            <!-- Camera pan/tilt controls -->
+            <div class="control" id="camera-controls" style="margin-bottom:16px">
                 <div class="control-row">
                     <div class="label">Camera Pan</div>
                     <div class="slider-wrap">
@@ -53,53 +87,11 @@
                 </div>
             </div>
 
-            <!-- Inject test frame removed -->
-        </section>
-
-        <!-- Robot Arm Section -->
-        <section class="section arm-section" aria-labelledby="armHeading">
-            <div class="section-header">
-                <h2 id="armHeading"></h2>
-            </div>
-
             <!-- Robot arm textual status (always visible) -->
             <div class="robot-arm-status">
                 <strong>Robot Arm:</strong>
                 <span id="robotArmStatus" class="status-offline">offline</span>
             </div>
-
-            <div style="margin-bottom: 4px; width: 100%; overflow: visible;">
-                <button id="connectionsHeader" class="connections-header" style="background: none; cursor: pointer; color: #000; font-weight: 600; text-align: left;">
-                    Connections: <span id="connectionCount">waiting...</span>
-                </button>
-            </div>
-
-            <!-- Connections Info Popup -->
-            <div id="connectionsPopup" class="connections-popup hidden">
-                <div class="connections-popup-content">
-                    <div class="connections-popup-header">
-                        <h3>Connections</h3>
-                        <button id="closeConnectionsPopup" class="connections-popup-close" aria-label="Sluiten">&times;</button>
-                    </div>
-                    <div class="connections-popup-body">
-                        <div id="userListContainer">
-                            <p class="user-list-loading">Loading...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-
-                <span style="color: #000; font-weight: 600;">Command Status:</span>
-                <div class="status" aria-live="polite"
-                    style="display: inline-flex; align-items: center; gap: 6px; margin: 0;">
-                    <span></span>
-                </div>
-            </div>
-
-            <div class="desc">If the robot arm is online adjust the sliders to control it. Changes are automatically
-                sent to the robot arm.</div>
 
             <div class="control">
                 <div class="control-row">
@@ -134,23 +126,24 @@
                     </div>
                 </div>
             </div>
+
+            <div id="chat-login" style="margin-top: 28px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 0;">
+                <span style="font-weight: 600; color: #000;">Participate:</span>
+                <input type="text" id="chat-username" placeholder="Your name..." maxlength="20" style="width: 100px; height: 28px; padding: 0 8px; font-size: 13px; box-sizing: border-box;">
+                <button class="btn primary" id="chat-start-btn" style="height: 28px; padding: 0 16px; font-size: 13px; box-sizing: border-box; flex: none; width: auto;">GO</button>
+                <button id="connectionsHeader" class="connections-header btn" style="cursor: pointer; color: #333; font-weight: 600; text-align: left; padding: 0 8px; height: 28px; font-size: 13px; flex: none; width: auto;">
+                    Connections
+                </button>
+            </div>
         </section>
 
         <!-- Chat Section -->
-        <section class="section chat-section" aria-labelledby="chatHeading">
+        <section class="section chat-section" aria-labelledby="chatHeading" style="margin-top: -10px;">
             <div class="section-header">
                 <h2 id="chatHeading">Chat</h2>
             </div>
 
             <div id="chat-widget" class="chat-container">
-                <!-- Scherm 1: De Verplichte Naam Invoer -->
-                <div id="chat-login">
-                    <h3>Deelnemen aan chat</h3>
-                    <p>Voer je naam in om te beginnen:</p>
-                    <input type="text" id="chat-username" placeholder="Jouw naam..." maxlength="20">
-                    <button class="btn primary">Start Chat</button>
-                </div>
-
                 <!-- Scherm 2: De Chat Interface (Standaard verborgen) -->
                 <div id="chat-interface" style="display: none;">
                     <div id="chat-header">

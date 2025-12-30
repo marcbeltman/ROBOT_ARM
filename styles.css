@@ -850,38 +850,37 @@ input[type=range]::-moz-range-thumb {
 /* Chat Login Screen */
 #chat-login {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
-    padding: 20px;
-    text-align: center;
-    min-height: 250px;
+    justify-content: flex-start;
+    padding: 12px;
+    gap: 12px;
+    flex-wrap: wrap;
+    min-height: auto;
 }
 
 #chat-login h3 {
-    margin: 0 0 12px 0;
-    font-size: 18px;
+    margin: 0;
+    font-size: 16px;
     font-weight: 700;
     color: #1f2937;
 }
 
 #chat-login p {
-    margin: 0 0 20px 0;
-    color: var(--muted);
-    font-size: 14px;
-    line-height: 1.5;
+    display: none;
 }
 
 #chat-username {
-    width: 100%;
-    max-width: 280px;
-    padding: 12px 16px;
+    flex: 1;
+    min-width: 120px;
+    max-width: none;
+    padding: 10px 14px;
     border: 1px solid #e6e6e9;
     border-radius: var(--radius-sm);
     background: var(--card-bg);
     font-size: 14px;
     font-family: inherit;
-    margin-bottom: 16px;
+    margin-bottom: 0;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -1050,16 +1049,16 @@ input[type=range]::-moz-range-thumb {
 @media (max-width: 599px) {
     .chat-container {
         padding: 14px;
-        min-height: 250px;
+        min-height: auto;
     }
 
     #chat-login {
-        min-height: 200px;
-        padding: 16px;
+        min-height: auto;
+        padding: 12px;
     }
 
     #chat-login h3 {
-        font-size: 16px;
+        font-size: 14px;
     }
 
     #chat-interface {
