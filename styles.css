@@ -19,6 +19,61 @@
 html,
 body {
     margin: 0;
+@media (max-width: 599px) {
+    .panel {
+        display: flex;
+        flex-direction: column;
+    }
+    .arm-section {
+        order: 1;
+        width: 100%;
+    }
+    .chat-section {
+        order: 2;
+        width: 100%;
+        margin-top: 32px;
+    }
+    #chat-login {
+        width: 100%;
+        margin-bottom: 16px;
+    }
+    #chat-login .btn-shared,
+    #chat-login .btn {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 0;
+    }
+    #chat-login input[type="text"] {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    #chat-label {
+        width: 100%;
+        display: block;
+        font-weight: 600;
+        color: #000;
+        font-size: 15px;
+        margin-bottom: 2px;
+    }
+    /* Zorg dat verborgen login-elementen geen ruimte innemen */
+    #chat-login[style*="display: none"],
+    #chat-login[hidden],
+    #chat-login .hidden,
+    #chat-login input[style*="display: none"],
+    #chat-login button[style*="display: none"] {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+    }
+}
+
     padding: 0
 }
 
@@ -397,6 +452,7 @@ input[type=range]::-moz-range-thumb {
     body {
         padding: 16px 12px
     }
+
 
     .panel {
         max-width: 100%;
@@ -843,7 +899,7 @@ input[type=range]::-moz-range-thumb {
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 10px !important;
-        margin-top: 20px !important;
+            margin-top: 0 !important; /* Zo hoog mogelijk */
     }
 
     #chat-login span {
@@ -865,7 +921,7 @@ input[type=range]::-moz-range-thumb {
 
     /* Mobile: desc text margin */
     .desc {
-        margin-top: 10px !important;
+        margin-top: 2px; /* Zo hoog mogelijk */
     }
 
     /* Mobile: status sections */
@@ -911,6 +967,23 @@ input[type=range]::-moz-range-thumb {
     flex-wrap: wrap;
     min-height: auto;
 }
+
+    .btn-shared {
+        height: 36px;
+        font-size: 14px;
+        border-radius: var(--radius-sm);
+        box-sizing: border-box;
+        display: block;
+        padding: 10px 14px;
+        min-width: 80px;
+        line-height: 1.2;
+        font-weight: 600;
+        border: 1px solid #e6e6e9;
+        background: var(--control-bg);
+        color: #333;
+        margin-bottom: 0;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
 
 #chat-login h3 {
     margin: 0;

@@ -130,16 +130,16 @@
             </div>
 
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; margin-top: 28px;">
-                          <div id="chat-login" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; padding: 0; margin: 0; width: 100%; flex: 1 1 0;">
-                    <span id="chat-label" style="font-weight: 600; color: #000;">Participate:</span>
-                          <input id="chat-username" type="text" placeholder="Your name" style="flex: 1 1 0; min-width: 200px; max-width: 100%; height: 28px; padding: 0 8px; font-size: 13px; box-sizing: border-box;">
-                    <button class="btn primary" id="chat-login-btn" style="height: 28px; padding: 0 16px; font-size: 13px; box-sizing: border-box; flex: none; width: auto;">GO</button>
+                <div id="chat-login" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; padding: 0; margin: 0; width: 100%; flex: 1 1 0;">
+                    <span id="chat-label">Participate:</span>
+                    <input id="chat-username" type="text" placeholder="Your name">
+                    <button class="btn btn-shared primary" id="chat-login-btn">GO</button>
+                    <button id="connections-btn" class="btn btn-shared">Connections</button>
                 </div>
-                <button id="connections-btn" class="connections-header btn" style="cursor: pointer; color: #333; font-weight: 600; text-align: left; padding: 0 8px; height: 28px; font-size: 13px; flex: none; width: auto; white-space: nowrap; flex-shrink: 0;">Connections</button>
             </div>
         </section>
 
-        <!-- Chat Section -->
+        <!-- Chat Section (éénmalig in DOM, wordt verplaatst op mobiel) -->
         <section class="section chat-section" aria-labelledby="chatHeading" style="margin-top: -10px;">
             <div class="section-header">
                 <h2 id="chatHeading">Chat</h2>
@@ -149,17 +149,49 @@
                 <!-- Scherm 2: De Chat Interface (Standaard verborgen) -->
                 <div id="chat-interface" style="display: none;">
                     <div id="chat-header">
-                        Ingelogd als: <span id="display-name"></span>
-                        <button id="leave-chat-btn" class="btn secondary" style="float: right; margin-top: -5px;">Verlaat Chat</button>
+                        Logged in as: <span id="display-name"></span>
+                        <button id="leave-chat-btn" class="btn secondary" style="float: right; margin-top: -5px;">Leave Chat</button>
                     </div>
                     <div id="chat-box"></div>
                     <div id="chat-input-area">
-                        <input type="text" id="chat-message" placeholder="Typ een bericht...">
-                        <button id="send-chat-btn" class="btn primary">Verstuur</button>
+                        <input type="text" id="chat-message" placeholder="Type a message...">
+                        <button id="send-chat-btn" class="btn primary">Send</button>
                     </div>
                 </div>
             </div>
         </section>
+
+        <script>
+        // Verplaats chat-section naar arm-section op mobiel, terug naar originele plek op desktop
+        let originalChatParent = null;
+        let originalChatNext = null;
+        function moveChatSectionMobile() {
+            const chatSection = document.querySelector('.chat-section');
+            const armSection = document.querySelector('.arm-section');
+            if (!chatSection || !armSection) return;
+            if (!originalChatParent) {
+                originalChatParent = chatSection.parentNode;
+                originalChatNext = chatSection.nextSibling;
+            }
+            if (window.innerWidth <= 599) {
+                if (chatSection.parentNode !== armSection) {
+                    armSection.appendChild(chatSection);
+                    chatSection.style.marginTop = '32px';
+                }
+            } else {
+                if (chatSection.parentNode !== originalChatParent) {
+                    if (originalChatNext) {
+                        originalChatParent.insertBefore(chatSection, originalChatNext);
+                    } else {
+                        originalChatParent.appendChild(chatSection);
+                    }
+                    chatSection.style.marginTop = '-10px';
+                }
+            }
+        }
+        window.addEventListener('DOMContentLoaded', moveChatSectionMobile);
+        window.addEventListener('resize', moveChatSectionMobile);
+        </script>
     </div>
 
     <script type="module">

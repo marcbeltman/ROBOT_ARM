@@ -145,16 +145,16 @@ export function joinChat() {
     isChatActive = true;
 
 
-    // Hide only the label, input, and GO button, not the connections button
+    // Haal login-elementen volledig uit de layout flow (display: none)
     const chatLabel = document.getElementById('chat-label');
     const chatInput = document.getElementById('chat-username');
     const chatLoginBtn = document.getElementById('chat-login-btn');
     const chatInterface = document.getElementById('chat-interface');
     const displayName = document.getElementById('display-name');
 
-    if (chatLabel) chatLabel.style.visibility = 'hidden';
-    if (chatInput) chatInput.style.visibility = 'hidden';
-    if (chatLoginBtn) chatLoginBtn.style.visibility = 'hidden';
+    if (chatLabel) chatLabel.style.display = 'none';
+    if (chatInput) chatInput.style.display = 'none';
+    if (chatLoginBtn) chatLoginBtn.style.display = 'none';
     if (chatInterface) chatInterface.style.display = 'flex';
     if (displayName) displayName.textContent = username;
 
@@ -282,13 +282,13 @@ function escapeHtml(text) {
  * Leave the chat
  */
 export function leaveChat() {
-        // Show Participate label, input, and GO button again
-        const chatLabel = document.getElementById('chat-label');
-        const chatInput = document.getElementById('chat-username');
-        const chatLoginBtn = document.getElementById('chat-login-btn');
-        if (chatLabel) chatLabel.style.visibility = 'visible';
-        if (chatInput) chatInput.style.visibility = 'visible';
-        if (chatLoginBtn) chatLoginBtn.style.visibility = 'visible';
+    // Show Participate label, input, and GO button again
+    const chatLabel = document.getElementById('chat-label');
+    const chatInput = document.getElementById('chat-username');
+    const chatLoginBtn = document.getElementById('chat-login-btn');
+    if (chatLabel) chatLabel.style.display = '';
+    if (chatInput) chatInput.style.display = '';
+    if (chatLoginBtn) chatLoginBtn.style.display = '';
     if (isChatActive && currentUsername) {
         sendCommand({
             type: 'chatLeave',
