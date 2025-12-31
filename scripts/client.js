@@ -16,6 +16,18 @@ let lastUserListJson = '';  // Geheugen van de vorige gebruikerslijst (voor chan
  * Connects all sliders to their value displays and WebSocket commands
  */
 export function initRobotArmClient() {
+        // Luister naar viewerStatus van de server
+        onWebSocketEvent('viewerStatus', () => {
+            // Zet alle bediening uit en toon 'Viewer' status
+            setAllControlsEnabled(false);
+            const statusEl = document.getElementById('sessionStatus');
+            if (statusEl) {
+                statusEl.textContent = 'Viewer';
+                statusEl.classList.remove('status-active', 'status-occupied', 'status-connecting');
+                statusEl.classList.add('status-ready');
+            }
+            console.log('[Client] viewerStatus ontvangen, UI op alleen-kijken gezet.');
+        });
     console.log('[Client] Initializing Robot Arm client');
 
     // Stuur een POST request naar Node-RED
@@ -120,15 +132,15 @@ export function initRobotArmClient() {
     // Start with all controls disabled until we are confirmed owner
     setAllControlsEnabled(false);
 
-    // Listen for WebSocket connection open - update status to "Standby" if connected
+    // Listen for WebSocket connection open - update status to "Viewer" if connected
     onWebSocketEvent('open', () => {
         const statusEl = document.getElementById('sessionStatus');
         if (statusEl) {
-            statusEl.textContent = 'Standby';
+            statusEl.textContent = 'Viewer';
             statusEl.classList.remove('status-connecting', 'status-occupied');
             statusEl.classList.add('status-ready');
         }
-        console.log('[Client] WebSocket connected, status set to Standby');
+        console.log('[Client] WebSocket connected, status set to Viewer');
     });
 
     // Listen for WebSocket connection close - update status to "Disconnected"

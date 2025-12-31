@@ -854,6 +854,7 @@ input[type=range]::-moz-range-thumb {
     border-radius: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    /* content: 'Owner'; alleen voor ::before, niet nodig hier */
 }
 
 .user-item-details {
