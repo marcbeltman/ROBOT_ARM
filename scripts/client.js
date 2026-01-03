@@ -28,6 +28,11 @@ export function initRobotArmClient() {
             }
             console.log('[Client] viewerStatus ontvangen, UI op alleen-kijken gezet.');
         });
+
+        // Log alle ontvangen heartbeat-berichten
+        onWebSocketEvent('heartbeat', (payload) => {
+            console.log('[Client] Heartbeat ontvangen:', payload);
+        });
     console.log('[Client] Initializing Robot Arm client');
 
     // Stuur een POST request naar Node-RED
@@ -192,10 +197,11 @@ export function initRobotArmClient() {
         console.debug('[Client] Camera controls', enabled ? 'enabled' : 'disabled');
 
         // update persistent status element class if present
+        // Use isCameraStandOnline for status display (not enabled), same as robot arm
         if (statusEl) {
             statusEl.classList.remove('status-online', 'status-offline', 'status-unknown');
-            statusEl.classList.add(enabled ? 'status-online' : 'status-offline');
-            statusEl.textContent = enabled ? 'online' : 'offline';
+            statusEl.classList.add(isCameraStandOnline ? 'status-online' : 'status-offline');
+            statusEl.textContent = isCameraStandOnline ? 'online' : 'offline';
         }
     }
 
@@ -267,21 +273,33 @@ export function initRobotArmClient() {
     // Expected payload example: { type: 'cameraStandStatus', online: true }
     onWebSocketEvent('cameraStandStatus', (payload) => {
         try {
+            console.log('[Client] cameraStandStatus ontvangen:', payload);
             const placeholder = document.getElementById('cameraPlaceholder');
-            if (!placeholder) return;
+            const statusEl = document.getElementById('cameraStandStatus');
+            if (!placeholder || !statusEl) return;
 
             if (payload && typeof payload.online === 'boolean') {
                 const online = !!payload.online;
                 isCameraStandOnline = online;  // Update global state
+
+                // Update status element for everyone (viewer & operator)
+                statusEl.classList.remove('status-online', 'status-offline', 'status-unknown');
+                statusEl.classList.add(online ? 'status-online' : 'status-offline');
+                statusEl.textContent = online ? 'online' : 'offline';
+
+                // Update placeholder (optioneel, voor visuele feedback)
                 // placeholder.textContent = online ? 'Camera: online' : 'Camera: offline';
 
-                // Only enable/disable camera controls if session is active
+                // Enable/disable camera controls alleen als sessie actief is
                 if (isSessionActive) {
                     setCameraControlsEnabled(online);
                 }
             } else {
                 // If payload not as expected, show generic status and disable controls
                 isCameraStandOnline = false;
+                statusEl.classList.remove('status-online', 'status-offline');
+                statusEl.classList.add('status-unknown');
+                statusEl.textContent = 'status unknown';
                 placeholder.textContent = 'Camera: status unknown';
                 if (isSessionActive) {
                     setCameraControlsEnabled(false);
