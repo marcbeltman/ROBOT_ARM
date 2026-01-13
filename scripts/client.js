@@ -103,33 +103,63 @@ export function initRobotArmClient() {
         inputEl.addEventListener('change', sendServoCommand);
     });
 
-    // Wire gripper buttons
-    const openBtn = document.getElementById('openBtn');
-    const closeBtn = document.getElementById('closeBtn');
+    // DISABLED: Gripper button handlers (uncomment to re-enable)
+    // const openBtn = document.getElementById('openBtn');
+    // const closeBtn = document.getElementById('closeBtn');
 
-    if (openBtn) {
-        openBtn.addEventListener('click', () => {
+    // if (openBtn) {
+    //     openBtn.addEventListener('click', () => {
+    //         sendCommand({
+    //             "type": "robotControl",
+    //             "command": "servo",
+    //             "servo": "gripper",
+    //             "angle": 75,
+    //             "sessionID": sessionID
+    //         });
+    //         console.debug('[Client] Gripper: open (servo 75)');
+    //     });
+    // }
+
+    // if (closeBtn) {
+    //     closeBtn.addEventListener('click', () => {
+    //         sendCommand({
+    //             "type": "robotControl",
+    //             "command": "servo",
+    //             "servo": "gripper",
+    //             "angle": 125,
+    //             "sessionID": sessionID
+    //         });
+    //         console.debug('[Client] Gripper: close (servo 125)');
+    //     });
+    // }
+
+    // NEW: Finger button handlers
+    const fingerUpBtn = document.getElementById('fingerUpBtn');
+    const fingerDownBtn = document.getElementById('fingerDownBtn');
+
+    if (fingerUpBtn) {
+        fingerUpBtn.addEventListener('click', () => {
             sendCommand({
                 "type": "robotControl",
                 "command": "servo",
-                "servo": "gripper",
-                "angle": 75,
+                "servo": "finger",
+                "angle": 180,  // UP position
                 "sessionID": sessionID
             });
-            console.debug('[Client] Gripper: open (servo 75)');
+            console.debug('[Client] Finger: UP (servo 180)');
         });
     }
 
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
+    if (fingerDownBtn) {
+        fingerDownBtn.addEventListener('click', () => {
             sendCommand({
                 "type": "robotControl",
                 "command": "servo",
-                "servo": "gripper",
-                "angle": 125,
+                "servo": "finger",
+                "angle": 0,  // DOWN position
                 "sessionID": sessionID
             });
-            console.debug('[Client] Gripper: close (servo 125)');
+            console.debug('[Client] Finger: DOWN (servo 0)');
         });
     }
 
