@@ -144,6 +144,7 @@ export function initRobotArmClient() {
                 "command": "servo",
                 "servo": "finger",
                 "angle": 180,  // UP position
+                "dur": 1000,
                 "sessionID": sessionID
             });
             console.debug('[Client] Finger: UP (servo 180)');
@@ -157,6 +158,7 @@ export function initRobotArmClient() {
                 "command": "servo",
                 "servo": "finger",
                 "angle": 0,  // DOWN position
+                "dur": 1000,
                 "sessionID": sessionID
             });
             console.debug('[Client] Finger: DOWN (servo 0)');
